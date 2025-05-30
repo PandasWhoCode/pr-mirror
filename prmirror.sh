@@ -35,11 +35,6 @@ prmirror() {
         return 1
     fi
 
-    if [[ "$(git rev-parse --is-inside-work-tree)" != "true" ]]; then
-        echo "Must execute from within a git repository."
-        return 1
-    fi
-    
     if which gh | grep -q "No such file or directory"; then
         echo "The github cli tool 'gh' must be installed."
         return 1

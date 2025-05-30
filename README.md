@@ -44,7 +44,7 @@ SSH access to GitHub (git@github.com must be reachable)
 
 This will:
 
-- Clone git@github.com:PandasWhoCode/pr-mirror.git into a temporary mirror-repo directory
+- Clone `git@github.com:PandasWhoCode/pr-mirror.git` into a temporary mirror-repo directory
 - Fetch pull request #42 into a temporary branch
 - Create a new branch mirror/pr-42 from it
 - Add an empty signed commit for traceability
@@ -63,9 +63,7 @@ And will include all commits from the original PR, along with an empty commit to
 
 ## Notes
 
-The script assumes you are running it inside a Git repository, though the repo itself isn't modified — this is just a sanity check.
-
-It exports `GITHUB_TOKEN` and `GITHUB_UNAME` using the GitHub CLI so that `gh pr create` can assign the author correctly.
+The script exports `GITHUB_TOKEN` and `GITHUB_UNAME` using the GitHub CLI so that `gh pr create` can assign the author correctly.
 
 The mirror-repo directory is created in the current working directory and not deleted automatically — you can remove it manually after use.
 
