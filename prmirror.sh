@@ -26,7 +26,7 @@ mirror() {
 }
 
 # This is the main method of this file. It does argument parsing and gathers
-# necessary information for mirroring a PR. It also will ensure enviornment
+# necessary information for mirroring a PR. It also will ensure environment
 # variables are properly configured.
 prmirror() {
     NUMBER=0
