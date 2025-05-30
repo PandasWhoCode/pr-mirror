@@ -20,7 +20,7 @@ prmirror() {
             (n) NUMBER="${OPTARG}" ;;
             (o) ORG="${OPTARG}" ;;
             (r) REPO="${OPTARG}" ;;
-            (*) echo "Usage $0 -n NUMBER" >&2
+            (*) echo "Usage $0 -n NUMBER -b BASE -o ORG -r REPO" >&2
                 return 1 ;;
         esac
     done
