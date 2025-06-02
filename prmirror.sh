@@ -27,7 +27,7 @@ sync() {
     git reset --hard pr-temp
 
     # Add the sync commit
-    git commit --allow-empty -sS -m "chore: mirror pr-${NUMBER}"
+    git commit --allow-empty -sS -m "chore: mirror pr-${NUMBER} (sync)"
 
     # Force-push the updated mirror branch
     git push -f origin "mirror/pr-${NUMBER}"
