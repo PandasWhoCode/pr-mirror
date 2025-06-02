@@ -52,7 +52,7 @@ mirror() {
     git checkout -b "mirror/pr-${NUMBER}"
 
     # push an empty commit for traceability 
-    git commit --allow-empty -sS -m "chore: mirror pr-${NUMBER} (sync)"
+    git commit --allow-empty -sS -m "chore: mirror pr-${NUMBER}"
     git push -u origin "mirror/pr-${NUMBER}"
 }
 
