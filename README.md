@@ -24,19 +24,20 @@ SSH access to GitHub (git@github.com must be reachable)
 ## Usage
 
 ```bash
-./prmirror.sh -n <pr-number> -b <base-branch> -o <org> -r <repo>
+./prmirror.sh -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s]
 ```
 
 ### Arguments
 
-| Flag | Description                                         |
-| ---- | --------------------------------------------------- |
-| -n   | (Required) Pull request number to mirror            |
-| -b   | (Required) Base branch to target for the new PR     |
-| -o   | (Required) GitHub organization (e.g. PandasWhoCode) |
-| -r   | (Required) GitHub repository name (e.g. pr-mirror)  |
+| Flag | Description                                                   |
+| ---- |---------------------------------------------------------------|
+| -n   | (Required) Pull request number to mirror                      |
+| -b   | (Required) Base branch to target for the new PR               |
+| -o   | (Required) GitHub organization (e.g. PandasWhoCode)           |
+| -r   | (Required) GitHub repository name (e.g. pr-mirror)            |
+| -s   | (Optional) Sync the mirror-pr branch and update the mirror PR |
 
-## Example
+## Example (Create new mirror)
 
 ```bash
 ./prmirror.sh -n 42 -b main -o PandasWhoCode -r pr-mirror
@@ -60,6 +61,30 @@ chore:Mirror PR-42
 ```
 
 And will include all commits from the original PR, along with an empty commit to mark it as mirrored.
+
+## Example (Sync existing mirror)
+
+```bash
+./prmirror.sh -n 42 -b main -o PandasWhoCode -r pr-mirror -s
+```
+
+This will:
+
+- Clone `git@github.com:PandasWhoCode/pr-mirror.git` into a temporary mirror-repo directory
+- Fetch pull request #42 into a temporary branch
+- Sync the branch mirror/pr-42 from with the temporary branch
+- Add an empty signed commit for traceability
+- Push mirror/pr-42 to origin
+
+### Output
+
+The existing mirror PR will be titled:
+
+```text
+chore: Mirror PR-42 (sync)
+```
+
+The PR will include all commits from the original PR, along with an empty commit to mark it as mirrored.
 
 ## Notes
 

@@ -4,12 +4,43 @@
 # to the user currently authenticated with the Github CLI Tool (gh).
 createpr() {
     gitbranch=$(git rev-parse --abbrev-ref HEAD)
-    gh pr create -a ${GITHUB_UNAME} -B ${BASE} --fill-verbose -H ${gitbranch} -R "${ORG}/${REPO}" -t "chore:Mirror PR-${NUMBER}"
+    gh pr create -a ${GITHUB_UNAME} -B ${BASE} --fill-verbose -H ${gitbranch} -R "${ORG}/${REPO}" -t "chore: Mirror PR-${NUMBER}"
+}
+
+# The Sync method will synchronize the local repository with the remote
+sync() {
+    # Clean up mirror-repo directory if it exists
+    if [[ -d "mirror-repo" ]]; then
+        rm -rf mirror-repo
+    fi
+
+    # clone the repo and navigate into it.
+    git clone "git@github.com:${ORG}/${REPO}" mirror-repo && cd mirror-repo
+
+    # Fetch the latest PR head into a temp branch
+    git fetch origin pull/"${NUMBER}"/head:pr-temp
+
+    # Checkout the mirror branch
+    git checkout "mirror/pr-${NUMBER}"
+
+    # Hard reset the mirror branch to match the PR head
+    git reset --hard pr-temp
+
+    # Add the sync commit
+    git commit --allow-empty -sS -m "chore: mirror pr-${NUMBER} (sync)"
+
+    # Force-push the updated mirror branch
+    git push -f origin "mirror/pr-${NUMBER}"
 }
 
 # The Mirror method performs the mirroring functionality necessary to set up a new branch
 # within the github repository with all changes from the originating PR.
 mirror() {
+    # Clean up mirror-repo directory if it exists
+    if [[ -d "mirror-repo" ]]; then
+        rm -rf mirror-repo
+    fi
+
     # clone the repo and navigate into it.
     git clone "git@github.com:${ORG}/${REPO}" mirror-repo && cd mirror-repo
 
@@ -30,13 +61,15 @@ mirror() {
 # variables are properly configured.
 prmirror() {
     NUMBER=0
-    while getopts "b:n:o:r:" opt; do
+    SYNC=0
+    while getopts "b:n:o:r:s" opt; do
         case $opt in
             (b) BASE="${OPTARG}" ;;
             (n) NUMBER="${OPTARG}" ;;
             (o) ORG="${OPTARG}" ;;
             (r) REPO="${OPTARG}" ;;
-            (*) echo "Usage $0 -n NUMBER -b BASE -o ORG -r REPO" >&2
+            (s) SYNC=1 ;;
+            (*) echo "Usage $0 -n NUMBER -b BASE -o ORG -r REPO [-s]" >&2
                 return 1 ;;
         esac
     done
@@ -71,11 +104,15 @@ prmirror() {
     export GITHUB_TOKEN=$(gh auth token)
     export GITHUB_UNAME=$(gh api user --jq .login)
 
-    # Call the mirror method
-    mirror
+    if [[ ${SYNC} -eq 1 ]]; then
+        sync
+    else
+        # Call the mirror method
+        mirror
 
-    # Call the create PR method
-    createpr
+        # Call the create PR method
+        createpr
+    fi
 
     # Navigate back to the project root.
     cd ..
@@ -83,4 +120,3 @@ prmirror() {
 
 # Call the prmirror main method with all arguments passed to the script
 prmirror $@
-
