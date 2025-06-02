@@ -9,6 +9,11 @@ createpr() {
 
 # The Sync method will synchronize the local repository with the remote
 sync() {
+    # Clean up mirror-repo directory if it exists
+    if [[ -d "mirror-repo" ]]; then
+        rm -rf mirror-repo
+    fi
+
     # clone the repo and navigate into it.
     git clone "git@github.com:${ORG}/${REPO}" mirror-repo && cd mirror-repo
 
@@ -31,6 +36,11 @@ sync() {
 # The Mirror method performs the mirroring functionality necessary to set up a new branch
 # within the github repository with all changes from the originating PR.
 mirror() {
+    # Clean up mirror-repo directory if it exists
+    if [[ -d "mirror-repo" ]]; then
+        rm -rf mirror-repo
+    fi
+
     # clone the repo and navigate into it.
     git clone "git@github.com:${ORG}/${REPO}" mirror-repo && cd mirror-repo
 
