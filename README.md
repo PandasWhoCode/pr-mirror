@@ -81,10 +81,10 @@ This will:
 The existing mirror PR will be titled:
 
 ```text
-chore:Mirror PR-42 (sync)
+chore: Mirror PR-42 (sync)
 ```
 
-And will include all commits from the original PR, along with an empty commit to mark it as mirrored.
+The PR will include all commits from the original PR, along with an empty commit to mark it as mirrored.
 
 ## Notes
 

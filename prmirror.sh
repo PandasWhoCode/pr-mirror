@@ -4,7 +4,7 @@
 # to the user currently authenticated with the Github CLI Tool (gh).
 createpr() {
     gitbranch=$(git rev-parse --abbrev-ref HEAD)
-    gh pr create -a ${GITHUB_UNAME} -B ${BASE} --fill-verbose -H ${gitbranch} -R "${ORG}/${REPO}" -t "chore:Mirror PR-${NUMBER}"
+    gh pr create -a ${GITHUB_UNAME} -B ${BASE} --fill-verbose -H ${gitbranch} -R "${ORG}/${REPO}" -t "chore: Mirror PR-${NUMBER}"
 }
 
 # The Sync method will synchronize the local repository with the remote
