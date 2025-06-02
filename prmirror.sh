@@ -104,10 +104,8 @@ prmirror() {
     export GITHUB_TOKEN=$(gh auth token)
     export GITHUB_UNAME=$(gh api user --jq .login)
 
-    if [[ SYNC -eq 1 ]]; then
-        # Ensure the local repository is up to date with the remote.
-        git fetch origin
-        git reset --hard origin/${BASE}
+    if [[ ${SYNC} -eq 1 ]]; then
+        sync
     else
         # Call the mirror method
         mirror
@@ -122,4 +120,3 @@ prmirror() {
 
 # Call the prmirror main method with all arguments passed to the script
 prmirror $@
-
