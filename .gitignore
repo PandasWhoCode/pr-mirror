@@ -26,3 +26,5 @@ go.work.sum
 
 /mirror-repo/
 /.idea/
+
+**/.DS_Store
