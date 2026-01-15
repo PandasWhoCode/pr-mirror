@@ -24,7 +24,29 @@ export function exec(command: string, cwd?: string): string {
       stdio: ['pipe', 'pipe', 'pipe']
     }).trim();
   } catch (error: any) {
-    throw new Error(`Command failed: ${command}\n${error.message}`);
+    const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
+    const stdout = typeof error?.stdout === 'string' ? error.stdout.trim() : '';
+    const io = [stdout ? `stdout:\n${stdout}` : '', stderr ? `stderr:\n${stderr}` : '']
+      .filter(Boolean)
+      .join('\n');
+    throw new Error(`Command failed: ${command}\n${error.message}${io ? `\n${io}` : ''}`);
+  }
+}
+
+/**
+ * Execute a shell command that may return sensitive output.
+ * This function must never include stdout/stderr in thrown errors.
+ */
+export function execSensitive(command: string, cwd?: string): string {
+  try {
+    debugLog('Executing: [REDACTED]');
+    return execSync(command, {
+      cwd: cwd || process.cwd(),
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    }).trim();
+  } catch (error: any) {
+    throw new Error(`Command failed: [REDACTED]\n${error.message}`);
   }
 }
 
@@ -40,7 +62,12 @@ export function execVerbose(command: string, cwd?: string): void {
       stdio: 'inherit'
     });
   } catch (error: any) {
-    throw new Error(`Command failed: ${command}\n${error.message}`);
+    const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
+    const stdout = typeof error?.stdout === 'string' ? error.stdout.trim() : '';
+    const io = [stdout ? `stdout:\n${stdout}` : '', stderr ? `stderr:\n${stderr}` : '']
+      .filter(Boolean)
+      .join('\n');
+    throw new Error(`Command failed: ${command}\n${error.message}${io ? `\n${io}` : ''}`);
   }
 }
 
@@ -48,7 +75,7 @@ export function execVerbose(command: string, cwd?: string): void {
  * Get GitHub authentication information
  */
 export function getGitHubAuth(): GitHubAuth {
-  const token = exec('gh auth token');
+  const token = execSensitive('gh auth token');
   const username = exec('gh api user --jq .login');
   return { token, username };
 }

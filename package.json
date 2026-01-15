@@ -1,7 +1,7 @@
 {
-  "name": "pandaswhocode/pr-mirror",
+  "name": "@pandaswhocode/pr-mirror",
   "version": "1.0.0",
-  "description": "prmirror.sh is a shell script to mirror an existing pull request from a public GitHub repository by:",
+  "description": "PR Mirror is a CLI tool to mirror an existing pull request from a public GitHub repository.",
   "main": "dist/index.js",
   "bin": {
     "prmirror": "./dist/index.js"
@@ -17,8 +17,12 @@
     "url": "https://github.com/PandasWhoCode/pr-mirror/issues"
   },
   "homepage": "https://github.com/PandasWhoCode/pr-mirror#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
+    "postbuild": "node -e \"const fs=require('fs'); const p='dist/index.js'; if(!fs.existsSync(p)) process.exit(0); const s=fs.readFileSync(p,'utf8'); if(!s.startsWith('#!/usr/bin/env node\\n')) fs.writeFileSync(p,'#!/usr/bin/env node\\n'+s, 'utf8');\"",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
