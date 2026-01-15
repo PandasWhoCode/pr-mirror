@@ -25,7 +25,7 @@
     "postbuild": "node -e \"const fs=require('fs'); const p='dist/index.js'; if(!fs.existsSync(p)) process.exit(0); const s=fs.readFileSync(p,'utf8'); if(!s.startsWith('#!/usr/bin/env node\\n')) fs.writeFileSync(p,'#!/usr/bin/env node\\n'+s, 'utf8');\"",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +35,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.9",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.6",
     "typescript": "^5.9.3"
   }
 }
