@@ -2,13 +2,22 @@
 
 import { prMirror } from './prmirror';
 
-// Run the main function if this script is executed directly
-if (require.main === module) {
-  prMirror().catch((error) => {
-    console.error(`Fatal error: ${error.message}`);
-    process.exit(1);
-  });
+export function handleFatalError(error: any): void {
+  console.error(`Fatal error: ${error.message}`);
+  process.exit(1);
 }
+
+export async function runCli(isMain: boolean = require.main === module): Promise<void> {
+  if (!isMain) return;
+
+  try {
+    await prMirror();
+  } catch (error: any) {
+    handleFatalError(error);
+  }
+}
+
+void runCli();
 
 // Export the main function and sub-functions for library usage
 export { prMirror } from './prmirror';

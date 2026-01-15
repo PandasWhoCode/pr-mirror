@@ -145,6 +145,9 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
 
     return result;
   } catch (error: any) {
+    if (typeof error?.message === 'string' && error.message.startsWith('exit:')) {
+      throw error;
+    }
     showUsage(`Error parsing arguments: ${error.message}`);
   }
 }
