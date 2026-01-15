@@ -1,0 +1,30 @@
+{
+  "name": "pandaswhocode/pr-mirror",
+  "version": "1.0.0",
+  "description": "prmirror.sh is a shell script to mirror an existing pull request from a public GitHub repository by:",
+  "main": "dist/index.js",
+  "bin": {
+    "prmirror": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PandasWhoCode/pr-mirror.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PandasWhoCode/pr-mirror/issues"
+  },
+  "homepage": "https://github.com/PandasWhoCode/pr-mirror#readme",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "typescript": "^5.9.3"
+  }
+}
