@@ -26,8 +26,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
   "devDependencies": {
     "@types/node": "^25.0.9",
     "typescript": "^5.9.3"
   }
 }
+
