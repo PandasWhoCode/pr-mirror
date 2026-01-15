@@ -6,6 +6,9 @@
   "bin": {
     "prmirror": "./dist/index.js"
   },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PandasWhoCode/pr-mirror.git"
