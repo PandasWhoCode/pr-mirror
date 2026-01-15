@@ -25,7 +25,8 @@
     "postbuild": "node -e \"const fs=require('fs'); const p='dist/index.js'; if(!fs.existsSync(p)) process.exit(0); const s=fs.readFileSync(p,'utf8'); if(!s.startsWith('#!/usr/bin/env node\\n')) fs.writeFileSync(p,'#!/usr/bin/env node\\n'+s, 'utf8');\"",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "cli": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
