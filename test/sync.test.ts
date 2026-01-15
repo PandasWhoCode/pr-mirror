@@ -15,10 +15,19 @@ describe('sync', () => {
     expect(getMirrorRepoPath).toHaveBeenCalledTimes(1);
 
     expect(execVerbose).toHaveBeenCalledWith('git clone "git@github.com:Org/Repo" mirror-repo');
-    expect(execVerbose).toHaveBeenCalledWith('git fetch origin pull/7/head:pr-temp', '/tmp/mirror-repo');
+    expect(execVerbose).toHaveBeenCalledWith(
+      'git fetch origin pull/7/head:pr-temp',
+      '/tmp/mirror-repo'
+    );
     expect(execVerbose).toHaveBeenCalledWith('git checkout "mirror/pr-7"', '/tmp/mirror-repo');
     expect(execVerbose).toHaveBeenCalledWith('git reset --hard pr-temp', '/tmp/mirror-repo');
-    expect(execVerbose).toHaveBeenCalledWith('git commit --allow-empty -sS -m "chore: mirror pr-7 (sync)"', '/tmp/mirror-repo');
-    expect(execVerbose).toHaveBeenCalledWith('git push -f origin "mirror/pr-7"', '/tmp/mirror-repo');
+    expect(execVerbose).toHaveBeenCalledWith(
+      'git commit --allow-empty -sS -m "chore: mirror pr-7 (sync)"',
+      '/tmp/mirror-repo'
+    );
+    expect(execVerbose).toHaveBeenCalledWith(
+      'git push -f origin "mirror/pr-7"',
+      '/tmp/mirror-repo'
+    );
   });
 });

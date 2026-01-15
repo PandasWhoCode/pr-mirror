@@ -1,4 +1,12 @@
-const loadWithMocks = async (values: any, opts?: { ghInstalled?: boolean; auth?: any; throwParse?: boolean; throwIn?: 'mirror' | 'sync' | 'createPr' }) => {
+const loadWithMocks = async (
+  values: any,
+  opts?: {
+    ghInstalled?: boolean;
+    auth?: any;
+    throwParse?: boolean;
+    throwIn?: 'mirror' | 'sync' | 'createPr';
+  }
+) => {
   jest.resetModules();
 
   jest.doMock('node:util', () => ({
@@ -12,9 +20,18 @@ const loadWithMocks = async (values: any, opts?: { ghInstalled?: boolean; auth?:
   const syncMock = jest.fn();
   const createPrMock = jest.fn();
 
-  if (opts?.throwIn === 'mirror') mirrorMock.mockImplementation(() => { throw new Error('mirror fail'); });
-  if (opts?.throwIn === 'sync') syncMock.mockImplementation(() => { throw new Error('sync fail'); });
-  if (opts?.throwIn === 'createPr') createPrMock.mockImplementation(() => { throw new Error('create fail'); });
+  if (opts?.throwIn === 'mirror')
+    mirrorMock.mockImplementation(() => {
+      throw new Error('mirror fail');
+    });
+  if (opts?.throwIn === 'sync')
+    syncMock.mockImplementation(() => {
+      throw new Error('sync fail');
+    });
+  if (opts?.throwIn === 'createPr')
+    createPrMock.mockImplementation(() => {
+      throw new Error('create fail');
+    });
 
   jest.doMock('../src/mirror', () => ({ mirror: mirrorMock }));
   jest.doMock('../src/sync', () => ({ sync: syncMock }));
@@ -67,7 +84,10 @@ describe('prmirror', () => {
     process.env.DEFAULT_ORG = 'Org';
     process.env.DEFAULT_REPO = 'Repo';
 
-    const { prMirror, mirrorMock, createPrMock } = await loadWithMocks({ number: '5', sync: false });
+    const { prMirror, mirrorMock, createPrMock } = await loadWithMocks({
+      number: '5',
+      sync: false,
+    });
 
     await prMirror();
 
@@ -114,7 +134,10 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false }, { ghInstalled: false });
+    const { prMirror } = await loadWithMocks(
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false },
+      { ghInstalled: false }
+    );
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 
@@ -130,7 +153,12 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ number: '5', org: 'Org', repo: 'Repo', sync: false });
+    const { prMirror } = await loadWithMocks({
+      number: '5',
+      org: 'Org',
+      repo: 'Repo',
+      sync: false,
+    });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 
@@ -146,7 +174,12 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ base: 'main', org: 'Org', repo: 'Repo', sync: false });
+    const { prMirror } = await loadWithMocks({
+      base: 'main',
+      org: 'Org',
+      repo: 'Repo',
+      sync: false,
+    });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 
@@ -162,7 +195,13 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ base: 'main', number: 'nope', org: 'Org', repo: 'Repo', sync: false });
+    const { prMirror } = await loadWithMocks({
+      base: 'main',
+      number: 'nope',
+      org: 'Org',
+      repo: 'Repo',
+      sync: false,
+    });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 
@@ -178,7 +217,12 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ base: 'main', number: '5', repo: 'Repo', sync: false });
+    const { prMirror } = await loadWithMocks({
+      base: 'main',
+      number: '5',
+      repo: 'Repo',
+      sync: false,
+    });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 
@@ -194,7 +238,12 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ base: 'main', number: '5', org: 'Org', sync: false });
+    const { prMirror } = await loadWithMocks({
+      base: 'main',
+      number: '5',
+      org: 'Org',
+      sync: false,
+    });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
 

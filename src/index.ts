@@ -25,4 +25,3 @@ export { mirror } from './mirror';
 export { sync } from './sync';
 export { createPr } from './createpr';
 export type { PrMirrorOptions, GitHubAuth } from './types';
-

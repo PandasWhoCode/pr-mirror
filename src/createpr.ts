@@ -15,4 +15,3 @@ export function createPr(options: PrMirrorOptions, auth: GitHubAuth): void {
 
   execVerbose(prCommand, mirrorRepoPath);
 }
-

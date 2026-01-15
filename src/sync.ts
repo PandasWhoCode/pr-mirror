@@ -28,10 +28,12 @@ export function sync(options: PrMirrorOptions): void {
 
   // Add the sync commit
   console.log('Creating sync commit...');
-  execVerbose(`git commit --allow-empty -sS -m "chore: mirror pr-${options.number} (sync)"`, mirrorRepoPath);
+  execVerbose(
+    `git commit --allow-empty -sS -m "chore: mirror pr-${options.number} (sync)"`,
+    mirrorRepoPath
+  );
 
   // Force-push the updated mirror branch
   console.log('Force-pushing changes...');
   execVerbose(`git push -f origin "mirror/pr-${options.number}"`, mirrorRepoPath);
 }
-

@@ -79,37 +79,37 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
         base: {
           type: 'string',
           short: 'b',
-          description: 'Base branch name'
+          description: 'Base branch name',
         },
         number: {
           type: 'string',
           short: 'n',
-          description: 'PR number to mirror'
+          description: 'PR number to mirror',
         },
         org: {
           type: 'string',
           short: 'o',
-          description: 'GitHub organization'
+          description: 'GitHub organization',
         },
         repo: {
           type: 'string',
           short: 'r',
-          description: 'GitHub repository name'
+          description: 'GitHub repository name',
         },
         sync: {
           type: 'boolean',
           short: 's',
           description: 'Sync existing mirror branch',
-          default: false
+          default: false,
         },
         help: {
           type: 'boolean',
           short: 'h',
           description: 'Show help',
-          default: false
-        }
+          default: false,
+        },
       },
-      allowPositionals: false
+      allowPositionals: false,
     });
 
     if (values.help) {
@@ -117,7 +117,7 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
     }
 
     const result: Partial<PrMirrorOptions> = {
-      sync: values.sync as boolean
+      sync: values.sync as boolean,
     };
 
     // Use command line args or fall back to environment variables
@@ -185,4 +185,3 @@ export async function prMirror(): Promise<void> {
     process.exit(1);
   }
 }
-

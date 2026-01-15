@@ -21,7 +21,7 @@ export function exec(command: string, cwd?: string): string {
     return execSync(command, {
       cwd: cwd || process.cwd(),
       encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (error: any) {
     const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
@@ -43,7 +43,7 @@ export function execSensitive(command: string, cwd?: string): string {
     return execSync(command, {
       cwd: cwd || process.cwd(),
       encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (error: any) {
     throw new Error(`Command failed: [REDACTED]\n${error.message}`);
@@ -59,7 +59,7 @@ export function execVerbose(command: string, cwd?: string): void {
     execSync(command, {
       cwd: cwd || process.cwd(),
       encoding: 'utf-8',
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
   } catch (error: any) {
     const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
@@ -108,4 +108,3 @@ export function cleanupMirrorRepo(): void {
 export function getMirrorRepoPath(): string {
   return join(process.cwd(), 'mirror-repo');
 }
-

@@ -60,7 +60,10 @@ describe('utils (additional coverage)', () => {
   it('cleanupMirrorRepo removes mirror-repo directory if it exists', () => {
     (existsSync as jest.Mock).mockReturnValue(true);
     cleanupMirrorRepo();
-    expect(rmSync).toHaveBeenCalledWith(expect.stringContaining('mirror-repo'), { recursive: true, force: true });
+    expect(rmSync).toHaveBeenCalledWith(expect.stringContaining('mirror-repo'), {
+      recursive: true,
+      force: true,
+    });
   });
 
   it('cleanupMirrorRepo does nothing if mirror-repo does not exist', () => {

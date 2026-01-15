@@ -26,7 +26,9 @@ export function mirror(options: PrMirrorOptions): void {
 
   // push an empty commit for traceability
   console.log('Creating tracking commit...');
-  execVerbose(`git commit --allow-empty -sS -m "chore: mirror pr-${options.number}"`, mirrorRepoPath);
+  execVerbose(
+    `git commit --allow-empty -sS -m "chore: mirror pr-${options.number}"`,
+    mirrorRepoPath
+  );
   execVerbose(`git push -u origin "mirror/pr-${options.number}"`, mirrorRepoPath);
 }
-
