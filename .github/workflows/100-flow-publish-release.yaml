@@ -18,6 +18,7 @@ defaults:
 permissions:
   contents: write
   id-token: write
+  actions: write
   packages: write
 
 jobs:
@@ -53,8 +54,15 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
         run: |
           npx semantic-release --dry-run
-          ls -al
-          cat VERSION
+          
+          # Verify the file VERSION exists
+          VERSION_EXISTS=$(ls -al | grep VERSION)
+          if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
+            echo "::info::VERSION file exists"
+          else
+            echo "::info::No VERSION file found. Exiting..."
+            gh run cancel
+          fi
 
       - name: Extract Version
         id: tag
@@ -114,7 +122,8 @@ jobs:
           npm install -g npm@11.7.0
           echo "VERSION=${{ needs.prepare-release.outputs.version }}"
           [[ -n "${{ needs.prepare-release.outputs.version }}" ]] && npm version ${{ needs.prepare-release.outputs.version }} -f --no-git-tag-version --allow-same-version
-          task build
+          npm run build
+          npm run test
 
       - name: Upload Logs
         if: ${{ always() }}
