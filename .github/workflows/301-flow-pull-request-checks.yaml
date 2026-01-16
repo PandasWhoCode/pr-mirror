@@ -40,4 +40,4 @@ jobs:
 
           echo "::group::Test Package"
           npm run test
-          echo "::endgroup::
+          echo "::endgroup::"

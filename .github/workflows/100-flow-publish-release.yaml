@@ -60,7 +60,7 @@ jobs:
           if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
             echo "::notice file=100-flow-publish-release.yaml,line=61::VERSION file exists"
           else
-            echo "::notice file=100-flow-publish-release.yaml,line=63::VERSION file exists"
+            echo "::notice file=100-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
             echo "::group::Cancel Workflow"
             echo "No significant changes were detected. Canceling workflow."
             gh run cancel
