@@ -33,7 +33,7 @@ jobs:
           echo "::group::Install Dependencies"
           npm ci
           echo "::endgroup::"
-          
+
           echo "::group::Build Package"
           npm run build
           echo "::endgroup::"
