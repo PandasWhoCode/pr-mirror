@@ -29,9 +29,6 @@
       "publishCmd": "npm publish ./output/*.tgz --access public"
     }
   ],
-  "releaseRules": [
-    { "breaking": "true", "release": "minor"}
-  ],
   "verifyRelease": [
     [
       "@semantic-release/exec",
