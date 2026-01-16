@@ -44,7 +44,7 @@ npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 ### Arguments
 
 | Flag | Description                                                   |
-| ---- | ------------------------------------------------------------- |
+|------|---------------------------------------------------------------|
 | -n   | (Required) Pull request number to mirror                      |
 | -b   | (Required) Base branch to target for the new PR               |
 | -o   | (Required) GitHub organization (e.g. PandasWhoCode)           |

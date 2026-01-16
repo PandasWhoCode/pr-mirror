@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+name: "301: [FLOW] PR Checks"
+on:
+  pull_request:
+    branches:
+      - "main"
+  
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  execute-tests:
+    # Run all tests ensure 100% threshold is maintained
+    name: Execute Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Runner
+        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        with:
+          checkout: 'true'
+          checkout-ref: '${{ github.ref }}'
+          checkout-token: '${{ secrets.GITHUB_TOKEN }}'
+          setup-node: 'true'
+          node-version: '24'
+          node-registry: 'https://registry.npmjs.org/'
+      
+      - name: Build & Test Package
+        run: |
+          echo "::group::Build Package"
+          npm run build
+          echo "::endgroup::"
+          
+          echo "::group::Test Package"
+          npm run test
+          echo "::endgroup::
