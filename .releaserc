@@ -47,7 +47,7 @@
   ],
   "branches":[
     {
-      "name": "main"
+      "name": "17-add-workflows"
     },
     {
       "name": "release/([0-9]+).([0-9]+)",
