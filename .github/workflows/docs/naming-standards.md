@@ -95,7 +95,7 @@ Name of the Workflow: `000: [USER] Status Checks`
 
 - Followed by the workflow name, maximum of 30 characters
 
-- Followed by`.yaml`
+- Followed by `.yaml`
 
 - File Naming Notes:
   - All letters in filename should be lowercase

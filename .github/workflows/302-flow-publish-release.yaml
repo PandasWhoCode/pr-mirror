@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.tag.outputs.version }}
-      need-release: ${{ steps.calculate-version.need-release }}
+      need-release: ${{ steps.calculate-version.outputs.need-release }}
     steps:
       - name: Prepare Release
         uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
@@ -60,9 +60,9 @@ jobs:
           VERSION_EXISTS=$(ls -al | grep VERSION)
           PROCEED="true"
           if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
-            echo "::notice file=100-flow-publish-release.yaml,line=61::VERSION file exists"
+            echo "::notice file=302-flow-publish-release.yaml,line=61::VERSION file exists"
           else
-            echo "::notice file=100-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
+            echo "::notice file=302-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
             echo "::group::Cancel Workflow"
             echo "No significant changes were detected. Canceling workflow."
             echo "::endgroup::"
@@ -73,7 +73,7 @@ jobs:
 
       - name: Extract Version
         id: tag
-        if: ${{ steps.calculate-version.outputs.need-release  == 'true' }}
+        if: ${{ steps.calculate-version.outputs.need-release == 'true' }}
         run: |
           cat VERSION
           [[ "${{ github.event.inputs.dry-run-enabled }}" == "true" && ! -f VERSION ]] && echo -n "0.0.0-latest" > VERSION
