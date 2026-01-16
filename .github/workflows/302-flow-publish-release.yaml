@@ -161,4 +161,4 @@ jobs:
             FLAGS="--dry-run"
           fi
 
-          npx semantic-release --no-sign ${FLAGS}
+          npx semantic-release ${FLAGS}
