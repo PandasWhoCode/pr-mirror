@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-name: "301: [FLOW] PR Checks"
+name: '301: [FLOW] PR Checks'
 on:
   pull_request:
     branches:
-      - "main"
-  
+      - 'main'
+
 defaults:
   run:
     shell: bash
@@ -27,13 +27,13 @@ jobs:
           setup-node: 'true'
           node-version: '24'
           node-registry: 'https://registry.npmjs.org/'
-      
+
       - name: Build & Test Package
         run: |
           echo "::group::Build Package"
           npm run build
           echo "::endgroup::"
-          
+
           echo "::group::Test Package"
           npm run test
           echo "::endgroup::
