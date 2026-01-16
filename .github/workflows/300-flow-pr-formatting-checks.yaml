@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-name: 'PR Formatting'
+name: '300: [FLOW] PR Formatting Checks'
 on:
   pull_request_target:
     types:
@@ -23,6 +23,7 @@ defaults:
     shell: bash
 
 permissions:
+  contents: read
   statuses: write
 
 jobs:
