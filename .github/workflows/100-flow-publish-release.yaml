@@ -54,7 +54,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
         run: |
           npx semantic-release --dry-run
-          
+
           # Verify the file VERSION exists
           VERSION_EXISTS=$(ls -al | grep VERSION)
           if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
