@@ -5,9 +5,17 @@ const loadWithMocks = async (
     auth?: any;
     throwParse?: boolean;
     throwIn?: 'mirror' | 'sync' | 'createPr';
+    verifyAnswer?: string;
   }
 ) => {
   jest.resetModules();
+
+  jest.doMock('node:readline/promises', () => ({
+    createInterface: () => ({
+      question: async () => opts?.verifyAnswer ?? '',
+      close: () => undefined,
+    }),
+  }));
 
   jest.doMock('node:util', () => ({
     parseArgs: () => {
@@ -64,13 +72,55 @@ describe('prmirror', () => {
     delete process.env.DEFAULT_REPO;
   });
 
+  it('verify aborts when not confirmed', async () => {
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+      throw new Error(`exit:${code}`);
+    }) as never);
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    const { prMirror, mirrorMock, createPrMock } = await loadWithMocks(
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false, verify: true },
+      { verifyAnswer: 'n' }
+    );
+
+    await expect(prMirror()).rejects.toThrow('exit:0');
+    expect(mirrorMock).not.toHaveBeenCalled();
+    expect(createPrMock).not.toHaveBeenCalled();
+
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  it('verify proceeds when confirmed', async () => {
+    const { prMirror, mirrorMock, createPrMock } = await loadWithMocks(
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false, verify: true },
+      { verifyAnswer: 'y' }
+    );
+
+    await prMirror();
+    expect(mirrorMock).toHaveBeenCalled();
+    expect(createPrMock).toHaveBeenCalled();
+  });
+
+  it('verify proceeds when confirmed (sync path)', async () => {
+    const { prMirror, syncMock, mirrorMock, createPrMock } = await loadWithMocks(
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: true, verify: true },
+      { verifyAnswer: 'yes' }
+    );
+
+    await prMirror();
+    expect(syncMock).toHaveBeenCalledTimes(1);
+    expect(mirrorMock).not.toHaveBeenCalled();
+    expect(createPrMock).not.toHaveBeenCalled();
+  });
+
   it('shows help and exits 0', async () => {
     const exitSpy = jest.spyOn(process, 'exit').mockImplementation(((code?: number) => {
       throw new Error(`exit:${code}`);
     }) as never);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-    const { prMirror } = await loadWithMocks({ help: true, sync: false });
+    const { prMirror } = await loadWithMocks({ help: true, sync: false, verify: false });
 
     await expect(prMirror()).rejects.toThrow('exit:0');
 
@@ -87,6 +137,7 @@ describe('prmirror', () => {
     const { prMirror, mirrorMock, createPrMock } = await loadWithMocks({
       number: '5',
       sync: false,
+      verify: false,
     });
 
     await prMirror();
@@ -102,6 +153,7 @@ describe('prmirror', () => {
       org: 'Org',
       repo: 'Repo',
       sync: true,
+      verify: false,
     });
 
     await prMirror();
@@ -135,7 +187,7 @@ describe('prmirror', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     const { prMirror } = await loadWithMocks(
-      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false },
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false, verify: false },
       { ghInstalled: false }
     );
 
@@ -158,6 +210,7 @@ describe('prmirror', () => {
       org: 'Org',
       repo: 'Repo',
       sync: false,
+      verify: false,
     });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
@@ -179,6 +232,7 @@ describe('prmirror', () => {
       org: 'Org',
       repo: 'Repo',
       sync: false,
+      verify: false,
     });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
@@ -201,6 +255,7 @@ describe('prmirror', () => {
       org: 'Org',
       repo: 'Repo',
       sync: false,
+      verify: false,
     });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
@@ -222,6 +277,7 @@ describe('prmirror', () => {
       number: '5',
       repo: 'Repo',
       sync: false,
+      verify: false,
     });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
@@ -243,6 +299,7 @@ describe('prmirror', () => {
       number: '5',
       org: 'Org',
       sync: false,
+      verify: false,
     });
 
     await expect(prMirror()).rejects.toThrow('exit:1');
@@ -263,6 +320,7 @@ describe('prmirror', () => {
       org: 'cli-org',
       repo: 'cli-repo',
       sync: false,
+      verify: false,
     });
 
     await prMirror();
@@ -273,6 +331,7 @@ describe('prmirror', () => {
       org: 'cli-org',
       repo: 'cli-repo',
       sync: false,
+      verify: false,
     });
   });
 
@@ -283,7 +342,7 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     const { prMirror } = await loadWithMocks(
-      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false },
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false, verify: false },
       { throwIn: 'mirror' }
     );
 
@@ -302,7 +361,7 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     const { prMirror } = await loadWithMocks(
-      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: true },
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: true, verify: false },
       { throwIn: 'sync' }
     );
 
@@ -321,7 +380,7 @@ describe('prmirror', () => {
     const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     const { prMirror } = await loadWithMocks(
-      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false },
+      { base: 'main', number: '5', org: 'Org', repo: 'Repo', sync: false, verify: false },
       { throwIn: 'createPr' }
     );
 

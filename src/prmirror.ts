@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { parseArgs } from 'node:util';
+import { createInterface } from 'node:readline/promises';
 import type { PrMirrorOptions } from './types';
 import { getGitHubAuth, checkGhInstalled } from './utils';
 import { mirror } from './mirror';
@@ -22,6 +23,7 @@ Options:
   -o, --org       GitHub organization (can use DEFAULT_ORG env var)
   -r, --repo      GitHub repository name (can use DEFAULT_REPO env var)
   -s, --sync      Sync existing mirror branch (optional)
+  -v, --verify    Show resolved inputs and ask for confirmation (optional)
   -h, --help      Show this help message
 
 Environment Variables:
@@ -69,6 +71,29 @@ function validateOptions(options: Partial<PrMirrorOptions>): asserts options is 
   }
 }
 
+async function verifyOptionsOrExit(options: PrMirrorOptions): Promise<void> {
+  if (!options.verify) return;
+
+  console.log('Verify inputs:');
+  console.log(`  PR #:   ${options.number}`);
+  console.log(`  Base:   ${options.base}`);
+  console.log(`  Org:    ${options.org}`);
+  console.log(`  Repo:   ${options.repo}`);
+  console.log(`  Sync:   ${options.sync ? 'yes' : 'no'}`);
+
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await rl.question('Proceed? (y/n): ');
+  rl.close();
+
+  const normalized = answer.trim().toLowerCase();
+  const proceed = normalized === 'y' || normalized === 'yes';
+
+  if (!proceed) {
+    console.log('Aborted.');
+    process.exit(0);
+  }
+}
+
 /**
  * Parse command line arguments
  */
@@ -102,6 +127,12 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
           description: 'Sync existing mirror branch',
           default: false,
         },
+        verify: {
+          type: 'boolean',
+          short: 'v',
+          description: 'Show resolved inputs and ask for confirmation',
+          default: false,
+        },
         help: {
           type: 'boolean',
           short: 'h',
@@ -118,6 +149,7 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
 
     const result: Partial<PrMirrorOptions> = {
       sync: values.sync as boolean,
+      verify: values.verify as boolean,
     };
 
     // Use command line args or fall back to environment variables
@@ -161,6 +193,8 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
 export async function prMirror(): Promise<void> {
   const options = parseCliArgs();
   validateOptions(options);
+
+  await verifyOptionsOrExit(options);
 
   // The GITHUB_TOKEN and GITHUB_UNAME environment variables
   // are used when creating the PR.
