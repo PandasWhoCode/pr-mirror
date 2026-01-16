@@ -4,6 +4,7 @@ export interface PrMirrorOptions {
   org: string;
   repo: string;
   sync: boolean;
+  verify: boolean;
 }
 
 export interface GitHubAuth {

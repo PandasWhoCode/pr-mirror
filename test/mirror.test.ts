@@ -9,7 +9,7 @@ import { execVerbose, cleanupMirrorRepo, getMirrorRepoPath } from '../src/utils'
 
 describe('mirror', () => {
   it('runs expected git commands', () => {
-    mirror({ base: 'main', number: 42, org: 'Org', repo: 'Repo', sync: false });
+    mirror({ base: 'main', number: 42, org: 'Org', repo: 'Repo', sync: false, verify: false });
 
     expect(cleanupMirrorRepo).toHaveBeenCalledTimes(1);
     expect(getMirrorRepoPath).toHaveBeenCalledTimes(1);

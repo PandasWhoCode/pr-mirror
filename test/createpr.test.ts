@@ -10,7 +10,7 @@ import { exec, execVerbose, getMirrorRepoPath } from '../src/utils';
 describe('createPr', () => {
   it('creates PR using gh with correct args', () => {
     createPr(
-      { base: 'main', number: 42, org: 'Org', repo: 'Repo', sync: false },
+      { base: 'main', number: 42, org: 'Org', repo: 'Repo', sync: false, verify: false },
       { token: 'token', username: 'someuser' }
     );
 
