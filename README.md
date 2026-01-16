@@ -15,18 +15,20 @@ This is useful in scenarios like:
 
 ## Prerequisites
 
+Node.js (see package engines)
+
 git (must be in PATH)
 
 GitHub CLI (gh) installed and authenticated (via gh auth login)
 
-SSH access to GitHub (git@github.com must be reachable)
-
 Git commit signing configured (required). This tool uses `git commit -S` for the tracking commits.
+
+SSH access to GitHub (git@github.com must be reachable)
 
 ## Usage
 
 ```bash
-prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s]
+prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s] [-v]
 ```
 
 ## Installation
@@ -38,23 +40,40 @@ npm install -g @pandaswhocode/pr-mirror
 Or run without installing:
 
 ```bash
-npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
+npx @pandaswhocode/pr-mirror prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 ```
 
 ### Arguments
 
-| Flag | Description                                                   |
-| ---- | ------------------------------------------------------------- |
-| -n   | (Required) Pull request number to mirror                      |
-| -b   | (Required) Base branch to target for the new PR               |
-| -o   | (Required) GitHub organization (e.g. PandasWhoCode)           |
-| -r   | (Required) GitHub repository name (e.g. pr-mirror)            |
-| -s   | (Optional) Sync the mirror-pr branch and update the mirror PR |
+| Flag | Description |
+| ---- | ----------- |
+| -n, --number | (Required) Pull request number to mirror |
+| -b, --base | Base branch to target for the new PR (can use DEFAULT_BASE env var) |
+| -o, --org | GitHub organization (can use DEFAULT_ORG env var) |
+| -r, --repo | GitHub repository name (can use DEFAULT_REPO env var) |
+| -s, --sync | Sync the mirror-pr branch and update the mirror PR |
+| -v, --verify | Show resolved inputs and ask for confirmation before proceeding |
+| -h, --help | Show help |
+
+### Environment variables
+
+You can set defaults in a `.env` file in your working directory:
+
+- **DEFAULT_ORG**
+- **DEFAULT_REPO**
+- **DEFAULT_BASE**
+- **DEBUG** (set to `true` for verbose logging)
 
 ## Example (Create new mirror)
 
 ```bash
 prmirror -n 42 -b main -o PandasWhoCode -r pr-mirror
+```
+
+To verify the resolved inputs before making any changes:
+
+```bash
+prmirror -n 42 -b main -o PandasWhoCode -r pr-mirror -v
 ```
 
 This will:
