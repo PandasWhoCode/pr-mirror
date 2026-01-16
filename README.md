@@ -1,6 +1,6 @@
 # PR Mirror
 
-prmirror.sh is a shell script to mirror an existing pull request from a public GitHub repository by:
+PR Mirror is a CLI tool to mirror an existing pull request from a public GitHub repository by:
 
 1. Cloning the repo (via SSH),
 2. Fetching the pull request as a local branch,
@@ -21,16 +21,30 @@ GitHub CLI (gh) installed and authenticated (via gh auth login)
 
 SSH access to GitHub (git@github.com must be reachable)
 
+Git commit signing configured (required). This tool uses `git commit -S` for the tracking commits.
+
 ## Usage
 
 ```bash
-./prmirror.sh -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s]
+prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s]
+```
+
+## Installation
+
+```bash
+npm install -g @pandaswhocode/pr-mirror
+```
+
+Or run without installing:
+
+```bash
+npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 ```
 
 ### Arguments
 
 | Flag | Description                                                   |
-| ---- |---------------------------------------------------------------|
+| ---- | ------------------------------------------------------------- |
 | -n   | (Required) Pull request number to mirror                      |
 | -b   | (Required) Base branch to target for the new PR               |
 | -o   | (Required) GitHub organization (e.g. PandasWhoCode)           |
@@ -40,7 +54,7 @@ SSH access to GitHub (git@github.com must be reachable)
 ## Example (Create new mirror)
 
 ```bash
-./prmirror.sh -n 42 -b main -o PandasWhoCode -r pr-mirror
+prmirror -n 42 -b main -o PandasWhoCode -r pr-mirror
 ```
 
 This will:
@@ -65,7 +79,7 @@ And will include all commits from the original PR, along with an empty commit to
 ## Example (Sync existing mirror)
 
 ```bash
-./prmirror.sh -n 42 -b main -o PandasWhoCode -r pr-mirror -s
+prmirror -n 42 -b main -o PandasWhoCode -r pr-mirror -s
 ```
 
 This will:
@@ -88,11 +102,10 @@ The PR will include all commits from the original PR, along with an empty commit
 
 ## Notes
 
-The script exports `GITHUB_TOKEN` and `GITHUB_UNAME` using the GitHub CLI so that `gh pr create` can assign the author correctly.
+The tool exports `GITHUB_TOKEN` and `GITHUB_UNAME` using the GitHub CLI so that `gh pr create` can assign the author correctly.
 
-The mirror-repo directory is created in the current working directory and not deleted automatically — you can remove it manually after use.
+The mirror-repo directory is created in the current working directory.
 
 ## License
 
 Apache 2.0
-

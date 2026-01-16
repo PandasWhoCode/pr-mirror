@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-name: "PR Formatting"
+name: 'PR Formatting'
 on:
   pull_request_target:
     types:
@@ -42,7 +42,7 @@ jobs:
 
   assignee-check:
     name: Assignee Check
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
 
     steps:
       - name: Harden Runner

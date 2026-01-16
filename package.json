@@ -1,0 +1,47 @@
+{
+  "name": "@pandaswhocode/pr-mirror",
+  "version": "2.0.0",
+  "description": "PR Mirror is a CLI tool to mirror an existing pull request from a public GitHub repository.",
+  "main": "dist/index.js",
+  "bin": {
+    "prmirror": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PandasWhoCode/pr-mirror.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PandasWhoCode/pr-mirror/issues"
+  },
+  "homepage": "https://github.com/PandasWhoCode/pr-mirror#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "node -e \"const fs=require('fs'); const p='dist/index.js'; if(!fs.existsSync(p)) process.exit(0); const s=fs.readFileSync(p,'utf8'); if(!s.startsWith('#!/usr/bin/env node\\n')) fs.writeFileSync(p,'#!/usr/bin/env node\\n'+s, 'utf8');\"",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "test": "jest",
+    "cli": "node dist/index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "prettier": "^3.4.2",
+    "ts-jest": "^29.2.6",
+    "typescript": "^5.9.3"
+  }
+}
