@@ -168,7 +168,7 @@ jobs:
           if [[ -d "dist" ]]; then
             ls -l dist
           fi
-      
+
       - name: Publish to npm
         run: |
           echo "::group::View Version to publish to npm"
