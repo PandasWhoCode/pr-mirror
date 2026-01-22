@@ -68,7 +68,7 @@ jobs:
               PROCEED="false"
             fi
           else
-            if [[ "${{ inputs.dry-run-enabled }}"" == "true" ]]; then
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
               jq -r '.version' './package.json' > VERSION
               PROCEED="true"
             else
