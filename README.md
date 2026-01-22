@@ -40,7 +40,7 @@ npm install -g @pandaswhocode/pr-mirror
 Or run without installing:
 
 ```bash
-npx @pandaswhocode/pr-mirror prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
+npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 ```
 
 ### Arguments
