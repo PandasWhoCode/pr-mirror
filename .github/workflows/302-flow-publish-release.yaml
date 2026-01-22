@@ -238,7 +238,7 @@ jobs:
               echo "::notice file=302-flow-publish-release.yaml,line=237::Package is created"
             else
               PROCEED="false"
-              echo "::error file=302-flow-publish-release.yaml,line=240::Package is not created"
+              echo "::error file=302-flow-publish-release.yaml,line=237::Package is not created"
               echo "Attempt Manual Publish!"
             fi
           echo "::endgroup::"
