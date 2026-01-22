@@ -248,17 +248,20 @@ export async function prMirror(): Promise<void> {
       // Call the create PR method
       createPr(options, auth);
     }
-
-    // if deleteAfterAction is true, delete the mirror-repo directory
-    if (options.deleteAfterAction) {
-      console.log('Deleting mirror-repo directory after action...');
-      cleanupMirrorRepo();
-      console.log('Deleted mirror-repo directory after action.');
-    }
-
-    console.log('\n✓ Success!');
   } catch (error: any) {
     console.error(`\n✗ Error: ${error.message}`);
     process.exit(1);
   }
+
+  // if deleteAfterAction is true, delete the mirror-repo directory
+  if (options.deleteAfterAction) {
+    try {
+      cleanupMirrorRepo();
+      console.log('Deleted mirror-repo directory after action.');
+    } catch (error: any) {
+      console.error(`\n✗ Cleanup Error: ${error.message}`);
+    }
+  }
+
+  console.log('\n✓ Success!');
 }
