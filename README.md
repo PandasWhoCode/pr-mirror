@@ -45,15 +45,15 @@ npx @pandaswhocode/pr-mirror prmirror -n <pr-number> -b <base-branch> -o <org> -
 
 ### Arguments
 
-| Flag | Description |
-| ---- | ----------- |
-| -n, --number | (Required) Pull request number to mirror |
-| -b, --base | Base branch to target for the new PR (can use DEFAULT_BASE env var) |
-| -o, --org | GitHub organization (can use DEFAULT_ORG env var) |
-| -r, --repo | GitHub repository name (can use DEFAULT_REPO env var) |
-| -s, --sync | Sync the mirror-pr branch and update the mirror PR |
-| -v, --verify | Show resolved inputs and ask for confirmation before proceeding |
-| -h, --help | Show help |
+| Flag         | Description                                                         |
+| ------------ | ------------------------------------------------------------------- |
+| -n, --number | (Required) Pull request number to mirror                            |
+| -b, --base   | Base branch to target for the new PR (can use DEFAULT_BASE env var) |
+| -o, --org    | GitHub organization (can use DEFAULT_ORG env var)                   |
+| -r, --repo   | GitHub repository name (can use DEFAULT_REPO env var)               |
+| -s, --sync   | Sync the mirror-pr branch and update the mirror PR                  |
+| -v, --verify | Show resolved inputs and ask for confirmation before proceeding     |
+| -h, --help   | Show help                                                           |
 
 ### Environment variables
 
