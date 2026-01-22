@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   prepare-release:
-    name: Prepare Job
+    name: Prepare Workflow Run
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.tag.outputs.version }}
