@@ -10,24 +10,13 @@
     ],
     [
       "@semantic-release/npm",
-      { "tarballDir": "output", "npmPublish": false }
+      { "tarballDir": "dist", "npmPublish": true }
     ],
     "@semantic-release/git",
-    {
-      "assets": [
-        "package.json",
-        "package-lock.json"
-      ],
-      "message": "chore(release): ${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
-    },
-    "@semantic-release/github",
-    { "assets": "output/*.tgz" }
-  ],
-  [
-    "@semantic-release/exec",
-    {
-      "publishCmd": "npm publish ./output/*.tgz --access public"
-    }
+    [
+      "@semantic-release/github",
+      { "assets": "dist/*.tgz" }
+    ]
   ],
   "verifyRelease": [
     [
@@ -36,7 +25,13 @@
     ]
   ],
   "prepare": [
-    "@semantic-release/npm",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false,
+        "tarballDir": "dist"
+      }
+    ],
     [
       "@semantic-release/git",
       {
