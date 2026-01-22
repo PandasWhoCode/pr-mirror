@@ -146,13 +146,6 @@ jobs:
           npm install -g conventional-changelog-conventionalcommits@9.1.0 @commitlint/cli@18.6.0 @commitlint/config-conventional@18.6.0
           npm install -g marked-mangle@1.1.6 marked-gfm-heading-id@3.1.2 semantic-release-conventional-commits@3.0.0
 
-      - name: Set Publish Data
-        id: set-publish-data
-        run: |
-          VERSION=$(jq -r '.version' './package.json')
-          CLI_NPM_PACKAGE_NAME="hiero-ledger-hiero-cli-${VERSION}.tgz"
-          echo "artifact-name=${CLI_NPM_PACKAGE_NAME}" >> $GITHUB_OUTPUT
-
       - name: Publish Semantic Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
