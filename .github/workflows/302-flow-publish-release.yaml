@@ -135,8 +135,6 @@ jobs:
           npm install -g npm@11.7.0
           echo "VERSION=${{ needs.prepare-release.outputs.version }}"
           [[ -n "${{ needs.prepare-release.outputs.version }}" ]] && npm version ${{ needs.prepare-release.outputs.version }} -f --no-git-tag-version --allow-same-version
-          npm run build
-          npm run test
 
       - name: Upload Logs
         if: ${{ always() }}
@@ -170,3 +168,25 @@ jobs:
           if [[ -d "dist" ]]; then
             ls -l dist
           fi
+      
+      - name: Publish to npm
+        run: |
+          echo "::group::View Version to publish to npm"
+          echo "Version to publish:"
+          cat package.json | grep "version:"
+          echo "::endgroup::"
+
+          echo "::group::Build NPM Package"
+          npm run build
+          npm run test
+          echo "::endgroup::"
+
+          echo "::group::Publish Package"
+          FLAGS="--access=public"
+          if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+            FLAGS="${FLAGS} --dry-run"
+          fi
+
+          echo "Command: npm publish ${FLAGS}"
+          npm publish ${FLAGS}
+          echo "::endgroup::"
