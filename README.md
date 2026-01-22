@@ -28,7 +28,10 @@ SSH access to GitHub (git@github.com must be reachable)
 ## Usage
 
 ```bash
-prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s] [-v]
+prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s] [-d] [-v]
+
+# Clean up mirror-repo directory and exit
+prmirror -c
 ```
 
 ## Installation
@@ -45,15 +48,17 @@ npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 
 ### Arguments
 
-| Flag         | Description                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| -n, --number | (Required) Pull request number to mirror                            |
-| -b, --base   | Base branch to target for the new PR (can use DEFAULT_BASE env var) |
-| -o, --org    | GitHub organization (can use DEFAULT_ORG env var)                   |
-| -r, --repo   | GitHub repository name (can use DEFAULT_REPO env var)               |
-| -s, --sync   | Sync the mirror-pr branch and update the mirror PR                  |
-| -v, --verify | Show resolved inputs and ask for confirmation before proceeding     |
-| -h, --help   | Show help                                                           |
+| Flag                    | Description                                                                 |
+| ----------------------- | --------------------------------------------------------------------------- |
+| -n, --number            | (Required) Pull request number to mirror                                    |
+| -b, --base              | Base branch to target for the new PR (defaults to `main` if unset)          |
+| -o, --org               | GitHub organization (can use DEFAULT_ORG env var)                           |
+| -r, --repo              | GitHub repository name (can use DEFAULT_REPO env var)                       |
+| -s, --sync              | Sync the mirror-pr branch and update the mirror PR                          |
+| -d, --deleteAfterAction | Delete the `mirror-repo` directory after a successful create/sync run       |
+| -c, --clean             | Delete the `mirror-repo` directory and exit (no other arguments are needed) |
+| -v, --verify            | Show resolved inputs and ask for confirmation before proceeding             |
+| -h, --help              | Show help                                                                   |
 
 ### Environment variables
 
@@ -63,6 +68,8 @@ You can set defaults in a `.env` file in your working directory:
 - **DEFAULT_REPO**
 - **DEFAULT_BASE**
 - **DEBUG** (set to `true` for verbose logging)
+
+Note: if `DEFAULT_BASE` is not set and `--base` is not provided, the base branch defaults to `main`.
 
 ## Example (Create new mirror)
 
@@ -118,6 +125,20 @@ chore: Mirror PR-42 (sync)
 ```
 
 The PR will include all commits from the original PR, along with an empty commit to mark it as mirrored.
+
+## Example (Delete mirror-repo after success)
+
+```bash
+prmirror -n 42 -b main -o PandasWhoCode -r pr-mirror -d
+```
+
+## Example (Clean mode)
+
+This deletes the local `mirror-repo` directory and exits without doing any other work:
+
+```bash
+prmirror -c
+```
 
 ## Notes
 
