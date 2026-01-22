@@ -10,7 +10,7 @@
     ],
     [
       "@semantic-release/npm",
-      { "tarballDir": "dist", "npmPublish": false }
+      { "tarballDir": "dist", "npmPublish": true }
     ],
     "@semantic-release/git",
     [
@@ -28,7 +28,7 @@
     [
       "@semantic-release/npm",
       {
-        "npmPublish": false,
+        "npmPublish": true,
         "tarballDir": "dist"
       }
     ],
