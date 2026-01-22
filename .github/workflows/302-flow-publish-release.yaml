@@ -54,18 +54,22 @@ jobs:
           GIT_COMMITTER_NAME: ${{ secrets.GIT_USER_NAME }}
           GIT_COMMITTER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
         run: |
-          npx semantic-release --dry-run
-
-          # Verify the file VERSION exists
-          VERSION_EXISTS=$(ls -al | grep VERSION)
           PROCEED="true"
-          if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
-            echo "::notice file=302-flow-publish-release.yaml,line=61::VERSION file exists"
+          if npx semantic-release --dry-run; then
+            echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release detected a new version"
+            # Verify the file VERSION exists
+            VERSION_EXISTS=$(ls -al | grep VERSION)
+            if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
+              echo "::notice file=302-flow-publish-release.yaml,line=61::VERSION file exists"
+            else
+              echo "::notice file=302-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
+              echo "::group::Cancel Workflow"
+              echo "No significant changes were detected. Canceling workflow."
+              echo "::endgroup::"
+              PROCEED="false"
+            fi
           else
-            echo "::notice file=302-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
-            echo "::group::Cancel Workflow"
-            echo "No significant changes were detected. Canceling workflow."
-            echo "::endgroup::"
+            echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release did not detect a new version"
             PROCEED="false"
           fi
 
