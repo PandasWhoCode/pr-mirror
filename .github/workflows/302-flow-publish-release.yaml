@@ -60,7 +60,7 @@ jobs:
           GIT_COMMITTER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
         run: |
           PROCEED="true"
-          if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then  
+          if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
             if npx semantic-release --dry-run; then
               echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release detected a new version"
             else
@@ -229,6 +229,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Verify Package is Created
+
         id: verify-package
         run: |
           PROCEED="true"
@@ -257,7 +258,7 @@ jobs:
     needs:
       - get-package-info
       - create-github-release
-    if: ${{ needs.create-github-release.outputs.need-publish == 'true' }}
+    if: ${{ needs.create-github-release.outputs.need-publish == 'true' || inputs.dry-run-enabled == true }}
     steps:
       - name: Prepare Job
         uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
@@ -273,6 +274,7 @@ jobs:
         run: npm install -g npm@11.7.0
 
       - name: Download NPM Package Artifact
+        if: ${{ inputs.dry-run-enabled != true }}
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: npm-package
@@ -287,6 +289,18 @@ jobs:
             fi
           echo "::endgroup::"
 
+          echo "::group::Set tarball output"
+            TARBALL="output/${{ needs.get-package-info.outputs.package-name }}"
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              TARBALL=""
+            fi
+          echo "::endgroup::"
+
           echo "::group::Publish NPM Package"
-            npm publish output/${{ needs.get-package-info.outputs.package-name }} ${FLAGS}
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              npm ci
+              npm run build
+              npm run test
+            fi
+            npm publish ${TARBALL} ${FLAGS}
           echo "::endgroup::"
