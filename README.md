@@ -48,17 +48,17 @@ npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 
 ### Arguments
 
-| Flag                    | Description                                                                 |
-| ----------------------- | --------------------------------------------------------------------------- |
-| -b, --base              | Base branch to target for the new PR (defaults to DEFAULT_BASE or `main`)   |
-| -c, --clean             | Delete the `mirror-repo` directory and exit (no other arguments are needed) |
-| -o, --org               | GitHub organization (can use DEFAULT_ORG env var)                           |
-| -r, --repo              | GitHub repository name (can use DEFAULT_REPO env var)                       |
-| -s, --sync              | Sync the mirror-pr branch and update the mirror PR                          |
-| -d, --deleteAfterAction | Delete the `mirror-repo` directory after a successful create/sync run       |
-| -h, --help              | Show help                                                                   |
-| -n, --number            | (Required) Pull request number to mirror                                    |
-| -v, --verify            | Show resolved inputs and ask for confirmation before proceeding             |
+| Flag                    | Description                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| -b, --base              | Base branch to target for the new PR (defaults to DEFAULT_BASE or `main`)                                                 |
+| -c, --clean             | Delete the `mirror-repo` directory and exit (no other arguments are needed)                                               |
+| -o, --org               | GitHub organization (can use DEFAULT_ORG env var)                                                                         |
+| -r, --repo              | GitHub repository name (can use DEFAULT_REPO env var)                                                                     |
+| -s, --sync              | Sync the mirror-pr branch and update the mirror PR                                                                        |
+| -d, --deleteAfterAction | Delete the `mirror-repo` directory after a successful create/sync run (cleanup errors are logged but do not fail the run) |
+| -h, --help              | Show help                                                                                                                 |
+| -n, --number            | (Required) Pull request number to mirror                                                                                  |
+| -v, --verify            | Show resolved inputs and ask for confirmation before proceeding                                                           |
 
 ### Environment variables
 
