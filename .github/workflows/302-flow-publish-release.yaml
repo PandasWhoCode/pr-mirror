@@ -229,7 +229,6 @@ jobs:
           echo "::endgroup::"
 
       - name: Verify Package is Created
-
         id: verify-package
         run: |
           PROCEED="true"
