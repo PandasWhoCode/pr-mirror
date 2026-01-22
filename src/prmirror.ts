@@ -222,7 +222,9 @@ export async function prMirror(): Promise<void> {
   const options = parseCliArgs();
 
   if (options.clean) {
+    console.log('Cleaning mirror-repo directory...');
     cleanupMirrorRepo();
+    console.log('Cleaned mirror-repo directory.');
     process.exit(0);
   }
 
@@ -249,7 +251,9 @@ export async function prMirror(): Promise<void> {
 
     // if deleteAfterAction is true, delete the mirror-repo directory
     if (options.deleteAfterAction) {
+      console.log('Deleting mirror-repo directory after action...');
       cleanupMirrorRepo();
+      console.log('Deleted mirror-repo directory after action.');
     }
 
     console.log('\n✓ Success!');
