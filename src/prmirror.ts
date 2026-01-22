@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import type { PrMirrorOptions } from './types';
-import { getGitHubAuth, checkGhInstalled } from './utils';
+import { getGitHubAuth, checkGhInstalled, cleanupMirrorRepo } from './utils';
 import { mirror } from './mirror';
 import { sync } from './sync';
 import { createPr } from './createpr';
@@ -18,13 +18,15 @@ function showUsage(errorMessage?: string, exitCode: number = 1): never {
   console.log(`Usage: prmirror -n NUMBER -b BASE -o ORG -r REPO [-s]
 
 Options:
-  -n, --number    PR number to mirror (required)
-  -b, --base      Base branch name (can use DEFAULT_BASE env var)
-  -o, --org       GitHub organization (can use DEFAULT_ORG env var)
-  -r, --repo      GitHub repository name (can use DEFAULT_REPO env var)
-  -s, --sync      Sync existing mirror branch (optional)
-  -v, --verify    Show resolved inputs and ask for confirmation (optional)
-  -h, --help      Show this help message
+  -n, --number            PR number to mirror (required)
+  -b, --base              Base branch name (can use DEFAULT_BASE env var)
+  -o, --org               GitHub organization (can use DEFAULT_ORG env var)
+  -r, --repo              GitHub repository name (can use DEFAULT_REPO env var)
+  -s, --sync              Sync existing mirror branch (optional)
+  -v, --verify            Show resolved inputs and ask for confirmation (optional)
+  -h, --help              Show this help message
+  -c, --clean             Clean up mirror-repo directory (optional)
+  -d, --deleteAfterAction Clean up mirror-repo directory after action (create, sync) (optional)
 
 Environment Variables:
   You can set defaults in a .env file to avoid repeating common values:
@@ -40,8 +42,14 @@ Examples:
   # Sync an existing mirrored PR
   prmirror -n 123 -b main -o myorg -r myrepo -s
 
+  # Clean up mirror-repo after action
+  prmirror -n 123 -b main -o myorg -r myrepo -d
+
   # With .env defaults (DEFAULT_ORG, DEFAULT_REPO, DEFAULT_BASE set)
   prmirror -n 123
+
+  # Clean up mirror-repo directory
+  prmirror -c
 `);
   process.exit(exitCode);
 }
@@ -50,10 +58,6 @@ Examples:
  * Validate the options
  */
 function validateOptions(options: Partial<PrMirrorOptions>): asserts options is PrMirrorOptions {
-  if (!options.base) {
-    showUsage('BASE branch is required');
-  }
-
   if (!options.number || options.number <= 0) {
     showUsage('PR Number is required and must be greater than 0');
   }
@@ -62,11 +66,11 @@ function validateOptions(options: Partial<PrMirrorOptions>): asserts options is 
     showUsage("The github cli tool 'gh' must be installed");
   }
 
-  if (!options.org) {
+  if (!options.org && !process.env.DEFAULT_ORG) {
     showUsage('Organization is required');
   }
 
-  if (!options.repo) {
+  if (!options.repo && !process.env.DEFAULT_REPO) {
     showUsage('Repository is required');
   }
 }
@@ -74,12 +78,16 @@ function validateOptions(options: Partial<PrMirrorOptions>): asserts options is 
 async function verifyOptionsOrExit(options: PrMirrorOptions): Promise<void> {
   if (!options.verify) return;
 
+  const yesNo = (value: boolean): string => (value ? 'yes' : 'no');
+
   console.log('Verify inputs:');
   console.log(`  PR #:   ${options.number}`);
   console.log(`  Base:   ${options.base}`);
   console.log(`  Org:    ${options.org}`);
   console.log(`  Repo:   ${options.repo}`);
-  console.log(`  Sync:   ${options.sync ? 'yes' : 'no'}`);
+  console.log(`  Sync:   ${yesNo(options.sync)}`);
+  console.log(`  Clean:  ${yesNo(options.clean)}`);
+  console.log(`  Delete after action:  ${yesNo(options.deleteAfterAction)}`);
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const answer = await rl.question('Proceed? (y/n): ');
@@ -127,6 +135,18 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
           description: 'Sync existing mirror branch',
           default: false,
         },
+        clean: {
+          type: 'boolean',
+          short: 'c',
+          description: 'Clean up mirror-repo directory',
+          default: false,
+        },
+        deleteAfterAction: {
+          type: 'boolean',
+          short: 'd',
+          description: 'Delete mirror-repo directory after action (create, sync)',
+          default: false,
+        },
         verify: {
           type: 'boolean',
           short: 'v',
@@ -149,6 +169,8 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
 
     const result: Partial<PrMirrorOptions> = {
       sync: values.sync as boolean,
+      clean: values.clean as boolean,
+      deleteAfterAction: values.deleteAfterAction as boolean,
       verify: values.verify as boolean,
     };
 
@@ -157,6 +179,8 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
       result.base = values.base as string;
     } else if (process.env.DEFAULT_BASE) {
       result.base = process.env.DEFAULT_BASE;
+    } else {
+      result.base = 'main';
     }
 
     if (values.number) {
@@ -167,12 +191,16 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
       result.org = values.org as string;
     } else if (process.env.DEFAULT_ORG) {
       result.org = process.env.DEFAULT_ORG;
+    } else {
+      result.org = '';
     }
 
     if (values.repo) {
       result.repo = values.repo as string;
     } else if (process.env.DEFAULT_REPO) {
       result.repo = process.env.DEFAULT_REPO;
+    } else {
+      result.repo = '';
     }
 
     return result;
@@ -192,6 +220,12 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
  */
 export async function prMirror(): Promise<void> {
   const options = parseCliArgs();
+
+  if (options.clean) {
+    cleanupMirrorRepo();
+    process.exit(0);
+  }
+
   validateOptions(options);
 
   await verifyOptionsOrExit(options);
@@ -211,6 +245,11 @@ export async function prMirror(): Promise<void> {
 
       // Call the create PR method
       createPr(options, auth);
+    }
+
+    // if deleteAfterAction is true, delete the mirror-repo directory
+    if (options.deleteAfterAction) {
+      cleanupMirrorRepo();
     }
 
     console.log('\n✓ Success!');

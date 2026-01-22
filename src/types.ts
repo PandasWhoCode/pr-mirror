@@ -5,6 +5,8 @@ export interface PrMirrorOptions {
   repo: string;
   sync: boolean;
   verify: boolean;
+  clean: boolean;
+  deleteAfterAction: boolean;
 }
 
 export interface GitHubAuth {
