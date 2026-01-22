@@ -8,15 +8,7 @@
       "@semantic-release/release-notes-generator",
       { "preset": "conventionalcommits" }
     ],
-    [
-      "@semantic-release/npm",
-      { "tarballDir": "dist", "npmPublish": true }
-    ],
-    "@semantic-release/git",
-    [
-      "@semantic-release/github",
-      { "assets": "dist/*.tgz" }
-    ]
+    "@semantic-release/git"
   ],
   "verifyRelease": [
     [
@@ -25,13 +17,6 @@
     ]
   ],
   "prepare": [
-    [
-      "@semantic-release/npm",
-      {
-        "npmPublish": false,
-        "tarballDir": "dist"
-      }
-    ],
     [
       "@semantic-release/git",
       {
