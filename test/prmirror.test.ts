@@ -5,6 +5,7 @@ const loadWithMocks = async (
     auth?: any;
     throwParse?: boolean;
     throwIn?: 'mirror' | 'sync' | 'createPr';
+    cleanupThrows?: boolean;
     verifyAnswer?: string;
   }
 ) => {
@@ -20,7 +21,15 @@ const loadWithMocks = async (
   jest.doMock('node:util', () => ({
     parseArgs: () => {
       if (opts?.throwParse) throw new Error('parse exploded');
-      return { values };
+      return {
+        values: {
+          sync: false,
+          verify: false,
+          clean: false,
+          deleteAfterAction: false,
+          ...values,
+        },
+      };
     },
   }));
 
@@ -47,10 +56,17 @@ const loadWithMocks = async (
 
   const getGitHubAuthMock = jest.fn(() => opts?.auth ?? { token: 't', username: 'u' });
   const checkGhInstalledMock = jest.fn(() => opts?.ghInstalled ?? true);
+  const cleanupMirrorRepoMock = jest.fn();
+  if (opts?.cleanupThrows) {
+    cleanupMirrorRepoMock.mockImplementation(() => {
+      throw new Error('cleanup fail');
+    });
+  }
 
   jest.doMock('../src/utils', () => ({
     getGitHubAuth: getGitHubAuthMock,
     checkGhInstalled: checkGhInstalledMock,
+    cleanupMirrorRepo: cleanupMirrorRepoMock,
   }));
 
   const mod = await import('../src/prmirror');
@@ -62,6 +78,7 @@ const loadWithMocks = async (
     createPrMock,
     getGitHubAuthMock,
     checkGhInstalledMock,
+    cleanupMirrorRepoMock,
   };
 };
 
@@ -88,6 +105,31 @@ describe('prmirror', () => {
     expect(createPrMock).not.toHaveBeenCalled();
 
     logSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  it('clean mode cleans mirror-repo and exits 0', async () => {
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+      throw new Error(`exit:${code}`);
+    }) as never);
+
+    const {
+      prMirror,
+      cleanupMirrorRepoMock,
+      mirrorMock,
+      syncMock,
+      createPrMock,
+      getGitHubAuthMock,
+    } = await loadWithMocks({ clean: true });
+
+    await expect(prMirror()).rejects.toThrow('exit:0');
+
+    expect(cleanupMirrorRepoMock).toHaveBeenCalledTimes(1);
+    expect(mirrorMock).not.toHaveBeenCalled();
+    expect(syncMock).not.toHaveBeenCalled();
+    expect(createPrMock).not.toHaveBeenCalled();
+    expect(getGitHubAuthMock).not.toHaveBeenCalled();
+
     exitSpy.mockRestore();
   });
 
@@ -198,14 +240,8 @@ describe('prmirror', () => {
     exitSpy.mockRestore();
   });
 
-  it('exits 1 when missing required base', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code}`);
-    }) as never);
-    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-
-    const { prMirror } = await loadWithMocks({
+  it('defaults base to main when missing', async () => {
+    const { prMirror, mirrorMock } = await loadWithMocks({
       number: '5',
       org: 'Org',
       repo: 'Repo',
@@ -213,11 +249,54 @@ describe('prmirror', () => {
       verify: false,
     });
 
-    await expect(prMirror()).rejects.toThrow('exit:1');
+    await prMirror();
 
-    errSpy.mockRestore();
+    expect(mirrorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        base: 'main',
+      })
+    );
+  });
+
+  it('deleteAfterAction cleans mirror-repo after successful mirror', async () => {
+    const { prMirror, cleanupMirrorRepoMock } = await loadWithMocks({
+      base: 'main',
+      number: '5',
+      org: 'Org',
+      repo: 'Repo',
+      sync: false,
+      verify: false,
+      deleteAfterAction: true,
+    });
+
+    await prMirror();
+    expect(cleanupMirrorRepoMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('deleteAfterAction cleanup errors are handled separately and do not fail the run', async () => {
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    const { prMirror, cleanupMirrorRepoMock, mirrorMock } = await loadWithMocks(
+      {
+        base: 'main',
+        number: '5',
+        org: 'Org',
+        repo: 'Repo',
+        sync: false,
+        verify: false,
+        deleteAfterAction: true,
+      },
+      { cleanupThrows: true }
+    );
+
+    await expect(prMirror()).resolves.toBeUndefined();
+    expect(mirrorMock).toHaveBeenCalledTimes(1);
+    expect(cleanupMirrorRepoMock).toHaveBeenCalledTimes(1);
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Cleanup Error'));
+
     logSpy.mockRestore();
-    exitSpy.mockRestore();
+    errSpy.mockRestore();
   });
 
   it('exits 1 when PR number is missing', async () => {
@@ -331,6 +410,8 @@ describe('prmirror', () => {
       org: 'cli-org',
       repo: 'cli-repo',
       sync: false,
+      clean: false,
+      deleteAfterAction: false,
       verify: false,
     });
   });
