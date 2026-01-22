@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   prepare-release:
-    name: Prepare Release
+    name: Prepare Workflow Run
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.tag.outputs.version }}
@@ -39,13 +39,18 @@ jobs:
           node-version: '24'
           node-registry: 'https://registry.npmjs.org/'
 
+      - name: Setup JQ
+        uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
+        with:
+          version: 1.7
+
       - name: Install Semantic Release
         run: |
           npm install -g semantic-release@25.0.2 @semantic-release/git@10.0.1 @semantic-release/exec@7.1.0 gradle-semantic-release-plugin@1.7.6
           npm install -g conventional-changelog-conventionalcommits@9.1.0 @commitlint/cli@18.6.0 @commitlint/config-conventional@18.6.0
           npm install -g marked-mangle@1.1.6 marked-gfm-heading-id@3.1.2 semantic-release-conventional-commits@3.0.0
 
-      - name: Calculate Next Version
+      - name: Calculate Next Version (default branch)
         id: calculate-version
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
@@ -55,22 +60,20 @@ jobs:
           GIT_COMMITTER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
         run: |
           PROCEED="true"
-          if npx semantic-release --dry-run; then
-            echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release detected a new version"
-            # Verify the file VERSION exists
-            VERSION_EXISTS=$(ls -al | grep VERSION)
-            if [[ ${#VERSION_EXISTS} -gt 0 ]]; then
-              echo "::notice file=302-flow-publish-release.yaml,line=61::VERSION file exists"
+          if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
+            if npx semantic-release --dry-run; then
+              echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release detected a new version"
             else
-              echo "::notice file=302-flow-publish-release.yaml,line=63::VERSION file does NOT exist"
-              echo "::group::Cancel Workflow"
-              echo "No significant changes were detected. Canceling workflow."
-              echo "::endgroup::"
+              echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release did not detect a new version"
               PROCEED="false"
             fi
           else
-            echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release did not detect a new version"
-            PROCEED="false"
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              jq -r '.version' './package.json' > VERSION
+              PROCEED="true"
+            else
+              PROCEED="false"
+            fi
           fi
 
           echo "need-release=${PROCEED}" >> "${GITHUB_OUTPUT}"
@@ -85,14 +88,49 @@ jobs:
           echo "version=${TRIMMED_VERSION}" >> "${GITHUB_OUTPUT}"
           echo "version=${TRIMMED_VERSION}"
 
+  get-package-info:
+    name: 'Get Package Info'
+    runs-on: ubuntu-latest
+    if: ${{ needs.prepare-release.outputs.need-release == 'true' }}
+    needs:
+      - prepare-release
+    outputs:
+      package-name: ${{ steps.set-package-name.outputs.package-name }}
+    steps:
+      - name: Prepare Job
+        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        with:
+          checkout: 'true'
+          checkout-ref: '${{ github.ref }}'
+          checkout-token: '${{ secrets.GITHUB_TOKEN }}'
+          checkout-fetch-depth: '1'
+
+      - name: Setup JQ
+        uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
+        with:
+          version: 1.7
+
+      - name: Generate Package name
+        id: set-package-name
+        run: |
+          clean_pkg_name() {
+            echo "${1}" | sed 's/^@//; s/\//-/g'
+          }
+          pname=$(jq -r '.name' './package.json')
+          full_pname=$(clean_pkg_name "${pname}-${{ needs.prepare-release.outputs.version }}.tgz")
+          echo "package-name=${full_pname}" | tee -a "${GITHUB_OUTPUT}"
+
   create-github-release:
     name: 'Create GitHub Release'
     runs-on: ubuntu-latest
     if: ${{ needs.prepare-release.outputs.need-release == 'true' }}
     needs:
       - prepare-release
+      - get-package-info
+    outputs:
+      need-publish: ${{ steps.verify-package.outputs.need-publish }}
     steps:
-      - name: Prepare Release
+      - name: Prepare Job
         uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
         with:
           checkout: 'true'
@@ -169,24 +207,99 @@ jobs:
             ls -l dist
           fi
 
-      - name: Publish to npm
+      - name: Create NPM Package
         run: |
           echo "::group::View Version to publish to npm"
-          echo "Version to publish:"
-          cat package.json | grep 'version'
+            echo "Version to publish:"
+            cat package.json | grep 'version'
           echo "::endgroup::"
 
           echo "::group::Build NPM Package"
-          npm run build
-          npm run test
+            npm run build
+            npm run test
           echo "::endgroup::"
 
-          echo "::group::Publish Package"
-          FLAGS="--access=public"
-          if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
-            FLAGS="${FLAGS} --dry-run"
-          fi
+          echo "::group::Create Package"
+            FLAGS=""
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              echo "Command: npm pack --pack-destination \"output\""
+              FLAGS="--dry-run"
+            fi
+            npm pack --pack-destination "output" ${FLAGS}
+          echo "::endgroup::"
 
-          echo "Command: npm publish ${FLAGS}"
-          npm publish ${FLAGS}
+      - name: Verify Package is Created
+        id: verify-package
+        run: |
+          PROCEED="true"
+          echo "::group::Verify Package is Created"
+            if ls -l output | grep "${{ needs.get-package-info.outputs.package-name }}" > /dev/null 2>&1 ; then
+              echo "::notice file=302-flow-publish-release.yaml,line=227::Package is created"
+            else
+              PROCEED="false"
+              echo "::error file=302-flow-publish-release.yaml,line=227::Package is not created"
+              echo "Attempt Manual Publish!"
+            fi
+          echo "::endgroup::"
+          echo "need-publish=${PROCEED}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload Package
+        if: ${{ steps.verify-package.outputs.need-publish == 'true' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: npm-package
+          path: output/${{ needs.get-package-info.outputs.package-name }}
+          if-no-files-found: error
+
+  publish-npm-release:
+    name: Publish Release packages
+    runs-on: ubuntu-latest
+    needs:
+      - get-package-info
+      - create-github-release
+    if: ${{ needs.create-github-release.outputs.need-publish == 'true' || inputs.dry-run-enabled == true }}
+    steps:
+      - name: Prepare Job
+        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        with:
+          checkout: 'true'
+          checkout-ref: '${{ github.ref }}'
+          checkout-token: '${{ secrets.GITHUB_TOKEN }}'
+          setup-node: 'true'
+          node-version: '24'
+          node-registry: 'https://registry.npmjs.org/'
+
+      - name: Install NPM latest
+        run: npm install -g npm@11.7.0
+
+      - name: Download NPM Package Artifact
+        if: ${{ inputs.dry-run-enabled != true }}
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: npm-package
+          path: output
+
+      - name: Publish NPM Package
+        run: |
+          echo "::group::Set Publish Args"
+            FLAGS="--access=public"
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              FLAGS="${FLAGS} --dry-run"
+            fi
+          echo "::endgroup::"
+
+          echo "::group::Set tarball output"
+            TARBALL="output/${{ needs.get-package-info.outputs.package-name }}"
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              TARBALL=""
+            fi
+          echo "::endgroup::"
+
+          echo "::group::Publish NPM Package"
+            if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+              npm ci
+              npm run build
+              npm run test
+            fi
+            npm publish ${TARBALL} ${FLAGS}
           echo "::endgroup::"
