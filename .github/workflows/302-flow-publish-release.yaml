@@ -290,7 +290,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Set tarball output"
-            TARBALL="output/${{ needs.get-package-info.outputs.package-name }}"
+            TARBALL="./output/${{ needs.get-package-info.outputs.package-name }}"
             if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
               TARBALL=""
             fi
