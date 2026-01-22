@@ -4,7 +4,7 @@
   "description": "PR Mirror is a CLI tool to mirror an existing pull request from a public GitHub repository.",
   "main": "dist/index.js",
   "bin": {
-    "prmirror": "./dist/index.js"
+    "prmirror": "dist/index.js"
   },
   "engines": {
     "node": ">=24.0.0"
