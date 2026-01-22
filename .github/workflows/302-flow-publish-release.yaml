@@ -173,7 +173,7 @@ jobs:
         run: |
           echo "::group::View Version to publish to npm"
           echo "Version to publish:"
-          cat package.json | grep "version:"
+          cat package.json | grep 'version'
           echo "::endgroup::"
 
           echo "::group::Build NPM Package"
