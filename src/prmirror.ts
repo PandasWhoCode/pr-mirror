@@ -15,10 +15,10 @@ function showUsage(errorMessage?: string, exitCode: number = 1): never {
     console.error(`\n❌ Error: ${errorMessage}\n`);
   }
 
-  console.log(`Usage: prmirror -b BASE -n NUMBER -o ORG -r REPO [-d] [-s] [-v]
+  console.log(`Usage: prmirror [-b BASE] -n NUMBER -o ORG -r REPO [-d] [-s] [-v]
 
 Options:
-  -b, --base              Base branch name (can use DEFAULT_BASE env var)
+  -b, --base              Base branch name (defaults to DEFAULT_BASE or 'main')
   -c, --clean             Clean up mirror-repo directory (optional)
   -d, --deleteAfterAction Clean up mirror-repo directory after action (create, sync) (optional)
   -h, --help              Show this help message
@@ -174,7 +174,7 @@ function parseCliArgs(): Partial<PrMirrorOptions> {
       verify: values.verify as boolean,
     };
 
-    // Use command line args or fall back to environment variables
+    // Resolve base branch: prefer CLI, then DEFAULT_BASE, otherwise default to 'main'.
     if (values.base) {
       result.base = values.base as string;
     } else if (process.env.DEFAULT_BASE) {
