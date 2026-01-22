@@ -28,7 +28,7 @@ SSH access to GitHub (git@github.com must be reachable)
 ## Usage
 
 ```bash
-prmirror -n <pr-number> -b <base-branch> -o <org> -r <repo> [-s] [-d] [-v]
+prmirror -b <base-branch> -n <pr-number> -o <org> -r <repo> [-d] [-s] [-v]
 
 # Clean up mirror-repo directory and exit
 prmirror -c
@@ -50,15 +50,15 @@ npx @pandaswhocode/pr-mirror -n <pr-number> -b <base-branch> -o <org> -r <repo>
 
 | Flag                    | Description                                                                 |
 | ----------------------- | --------------------------------------------------------------------------- |
-| -n, --number            | (Required) Pull request number to mirror                                    |
 | -b, --base              | Base branch to target for the new PR (defaults to `main` if unset)          |
+| -c, --clean             | Delete the `mirror-repo` directory and exit (no other arguments are needed) |
 | -o, --org               | GitHub organization (can use DEFAULT_ORG env var)                           |
 | -r, --repo              | GitHub repository name (can use DEFAULT_REPO env var)                       |
 | -s, --sync              | Sync the mirror-pr branch and update the mirror PR                          |
 | -d, --deleteAfterAction | Delete the `mirror-repo` directory after a successful create/sync run       |
-| -c, --clean             | Delete the `mirror-repo` directory and exit (no other arguments are needed) |
-| -v, --verify            | Show resolved inputs and ask for confirmation before proceeding             |
 | -h, --help              | Show help                                                                   |
+| -n, --number            | (Required) Pull request number to mirror                                    |
+| -v, --verify            | Show resolved inputs and ask for confirmation before proceeding             |
 
 ### Environment variables
 

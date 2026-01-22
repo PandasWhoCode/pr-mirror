@@ -15,18 +15,18 @@ function showUsage(errorMessage?: string, exitCode: number = 1): never {
     console.error(`\n❌ Error: ${errorMessage}\n`);
   }
 
-  console.log(`Usage: prmirror -n NUMBER -b BASE -o ORG -r REPO [-s]
+  console.log(`Usage: prmirror -b BASE -n NUMBER -o ORG -r REPO [-d] [-s] [-v]
 
 Options:
-  -n, --number            PR number to mirror (required)
   -b, --base              Base branch name (can use DEFAULT_BASE env var)
+  -c, --clean             Clean up mirror-repo directory (optional)
+  -d, --deleteAfterAction Clean up mirror-repo directory after action (create, sync) (optional)
+  -h, --help              Show this help message
+  -n, --number            PR number to mirror (required)
   -o, --org               GitHub organization (can use DEFAULT_ORG env var)
   -r, --repo              GitHub repository name (can use DEFAULT_REPO env var)
   -s, --sync              Sync existing mirror branch (optional)
   -v, --verify            Show resolved inputs and ask for confirmation (optional)
-  -h, --help              Show this help message
-  -c, --clean             Clean up mirror-repo directory (optional)
-  -d, --deleteAfterAction Clean up mirror-repo directory after action (create, sync) (optional)
 
 Environment Variables:
   You can set defaults in a .env file to avoid repeating common values:
