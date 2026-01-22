@@ -34,7 +34,7 @@ jobs:
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
-          checkout-token: '${{ secrets.GITHUB_TOKEN }}'
+          checkout-token: '${{ secrets.GH_ACCESS_TOKEN }}'
           setup-node: 'true'
           node-version: '24'
           node-registry: 'https://registry.npmjs.org/'
@@ -48,7 +48,7 @@ jobs:
       - name: Calculate Next Version
         id: calculate-version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
           GIT_AUTHOR_NAME: ${{ secrets.GIT_USER_NAME }}
           GIT_AUTHOR_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
           GIT_COMMITTER_NAME: ${{ secrets.GIT_USER_NAME }}
@@ -97,7 +97,7 @@ jobs:
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
-          checkout-token: '${{ secrets.GITHUB_TOKEN }}'
+          checkout-token: '${{ secrets.GH_ACCESS_TOKEN }}'
           setup-node: 'true'
           node-version: '24'
           node-registry: 'https://registry.npmjs.org/'
@@ -150,8 +150,8 @@ jobs:
 
       - name: Publish Semantic Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
           GIT_AUTHOR_NAME: ${{ secrets.GIT_USER_NAME }}
           GIT_AUTHOR_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
           GIT_COMMITTER_NAME: ${{ secrets.GIT_USER_NAME }}
@@ -168,7 +168,7 @@ jobs:
           if [[ -d "dist" ]]; then
             ls -l dist
           fi
-      
+
       - name: Publish to npm
         run: |
           echo "::group::View Version to publish to npm"
