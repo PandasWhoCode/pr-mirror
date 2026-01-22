@@ -1,6 +1,6 @@
 {
   "name": "@pandaswhocode/pr-mirror",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "PR Mirror is a CLI tool to mirror an existing pull request from a public GitHub repository.",
   "main": "dist/index.js",
   "bin": {
