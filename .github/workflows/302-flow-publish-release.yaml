@@ -63,6 +63,12 @@ jobs:
           PROCEED="true"
           if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
             if SEMREL_OUTPUT=$(npx semantic-release --dry-run 2>&1); then
+              # Show Semantic Release dry run output
+              echo "::group::Semantic Release Dry Run Output"
+                echo "${SEMREL_OUTPUT}"
+              echo "::endgroup::"
+              
+              # Check if Semantic Release detected a new version
               if echo "${SEMREL_OUTPUT}" | grep -q "The next release version is"; then
                 echo "::notice file=302-flow-publish-release.yaml::Semantic Release detected a new version"
               else
