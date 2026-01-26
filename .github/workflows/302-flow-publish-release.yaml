@@ -27,8 +27,8 @@ jobs:
     name: Prepare Workflow Run
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.tag.outputs.version }}
-      need-release: ${{ steps.calculate-version.outputs.need-release }}
+      version: ${{ steps.set-outputs.outputs.version }}
+      need-release: ${{ steps.set-outputs.outputs.need-release }}
     steps:
       - name: Prepare Release
         uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
@@ -62,10 +62,15 @@ jobs:
         run: |
           PROCEED="true"
           if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
-            if npx semantic-release --dry-run; then
-              echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release detected a new version"
+            if SEMREL_OUTPUT=$(npx semantic-release --dry-run 2>&1); then
+              if echo "${SEMREL_OUTPUT}" | grep -q "The next release version is"; then
+                echo "::notice file=302-flow-publish-release.yaml::Semantic Release detected a new version"
+              else
+                echo "::notice file=302-flow-publish-release.yaml::Semantic Release detected NO new version"
+                PROCEED="false"
+              fi
             else
-              echo "::notice file=302-flow-publish-release.yaml,line=61::Semantic Release did not detect a new version"
+              echo "::notice file=302-flow-publish-release.yaml::Semantic Release did NOT run successfully"
               PROCEED="false"
             fi
           else
@@ -80,14 +85,23 @@ jobs:
           echo "need-release=${PROCEED}" >> "${GITHUB_OUTPUT}"
 
       - name: Extract Version
-        id: tag
-        if: ${{ steps.calculate-version.outputs.need-release == 'true' }}
+        id: set-outputs
+        if: ${{ !cancelled() && always() }}
         run: |
-          cat VERSION
-          [[ "${{ inputs.dry-run-enabled }}" == "true" && ! -f VERSION ]] && echo -n "0.0.0-latest" > VERSION
-          TRIMMED_VERSION=$(cat VERSION | tr -d '[:space:]')
-          echo "version=${TRIMMED_VERSION}" >> "${GITHUB_OUTPUT}"
-          echo "version=${TRIMMED_VERSION}"
+          PROCEED="true"
+          OUTVER=""
+          if [[ "${{ steps.calculate-version.outputs.need-release }}" == "true" ]] && [[ -f VERSION ]]; then
+            [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && echo -n "0.0.0-latest" > VERSION
+            cat VERSION
+            TRIMMED_VERSION=$(cat VERSION | tr -d '[:space:]')
+            OUTVER="${TRIMMED_VERSION}"
+            echo "version=${TRIMMED_VERSION}"
+          else
+            PROCEED="false"
+          fi
+
+          echo "version=${OUTVER}" >> "${GITHUB_OUTPUT}"
+          echo "need-release=${PROCEED}" >> "${GITHUB_OUTPUT}"
 
   get-package-info:
     name: 'Get Package Info'
@@ -236,10 +250,10 @@ jobs:
           PROCEED="true"
           echo "::group::Verify Package is Created"
             if ls -l output | grep "${{ needs.get-package-info.outputs.package-name }}" > /dev/null 2>&1 ; then
-              echo "::notice file=302-flow-publish-release.yaml,line=237::Package is created"
+              echo "::notice file=302-flow-publish-release.yaml::Package is created"
             else
               PROCEED="false"
-              echo "::error file=302-flow-publish-release.yaml,line=237::Package is not created"
+              echo "::error file=302-flow-publish-release.yaml::Package is not created"
               echo "Attempt Manual Publish!"
             fi
           echo "::endgroup::"
