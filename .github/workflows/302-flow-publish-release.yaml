@@ -63,14 +63,14 @@ jobs:
           PROCEED="true"
           if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
             if SEMREL_OUTPUT=$(npx semantic-release --dry-run 2>&1); then
-              if echo "${SEMREL_OUTPUT}" | grep -qi "The next release version is"; then
+              if echo "${SEMREL_OUTPUT}" | grep -q "The next release version is"; then
                 echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release detected a new version"
               else
                 echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release detected NO new version"
                 PROCEED="false"
               fi
             else
-              echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release did not run successfully"
+              echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release did NOT run successfully"
               PROCEED="false"
             fi
           else
@@ -91,8 +91,8 @@ jobs:
           PROCEED="true"
           OUTVER=""
           if [[ "${{ steps.calculate-version.outputs.need-release }}" == "true" ]] && [[ -f VERSION ]]; then
-            cat VERSION
             [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && echo -n "0.0.0-latest" > VERSION
+            cat VERSION
             TRIMMED_VERSION=$(cat VERSION | tr -d '[:space:]')
             OUTVER="${TRIMMED_VERSION}"
             echo "version=${TRIMMED_VERSION}"
