@@ -64,13 +64,13 @@ jobs:
           if [[ "${{ github.event.repository.default_branch }}" == "${{ github.ref_name }}" ]]; then
             if SEMREL_OUTPUT=$(npx semantic-release --dry-run 2>&1); then
               if echo "${SEMREL_OUTPUT}" | grep -q "The next release version is"; then
-                echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release detected a new version"
+                echo "::notice file=302-flow-publish-release.yaml::Semantic Release detected a new version"
               else
-                echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release detected NO new version"
+                echo "::notice file=302-flow-publish-release.yaml::Semantic Release detected NO new version"
                 PROCEED="false"
               fi
             else
-              echo "::notice file=302-flow-publish-release.yaml,line=65::Semantic Release did NOT run successfully"
+              echo "::notice file=302-flow-publish-release.yaml::Semantic Release did NOT run successfully"
               PROCEED="false"
             fi
           else
@@ -250,10 +250,10 @@ jobs:
           PROCEED="true"
           echo "::group::Verify Package is Created"
             if ls -l output | grep "${{ needs.get-package-info.outputs.package-name }}" > /dev/null 2>&1 ; then
-              echo "::notice file=302-flow-publish-release.yaml,line=237::Package is created"
+              echo "::notice file=302-flow-publish-release.yaml::Package is created"
             else
               PROCEED="false"
-              echo "::error file=302-flow-publish-release.yaml,line=237::Package is not created"
+              echo "::error file=302-flow-publish-release.yaml::Package is not created"
               echo "Attempt Manual Publish!"
             fi
           echo "::endgroup::"
