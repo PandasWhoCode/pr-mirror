@@ -97,11 +97,14 @@ jobs:
           PROCEED="true"
           OUTVER=""
           if [[ "${{ steps.calculate-version.outputs.need-release }}" == "true" ]] && [[ -f VERSION ]]; then
-            [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && echo -n "0.0.0-latest" > VERSION
             cat VERSION
             TRIMMED_VERSION=$(cat VERSION | tr -d '[:space:]')
             OUTVER="${TRIMMED_VERSION}"
             echo "version=${TRIMMED_VERSION}"
+          elif [[ "${{ steps.calculate-version.outputs.need-release }}" == "true" ]] && [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && [[ ! -f VERSION ]]; then
+            VER=$(jq -r '.version' './package.json')
+            OUTVER="${VER}"
+            echo "version=${VER}"
           else
             PROCEED="false"
           fi
