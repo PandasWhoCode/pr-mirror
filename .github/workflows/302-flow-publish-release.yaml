@@ -101,7 +101,7 @@ jobs:
             TRIMMED_VERSION=$(cat VERSION | tr -d '[:space:]')
             OUTVER="${TRIMMED_VERSION}"
             echo "version=${TRIMMED_VERSION}"
-          elif [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && [[ ! -f VERSION ]]; then
+          elif [[ "${{ steps.calculate-version.outputs.need-release }}" == "true" ]] && [[ "${{ inputs.dry-run-enabled }}" == "true" ]] && [[ ! -f VERSION ]]; then
             VER=$(jq -r '.version' './package.json')
             OUTVER="${VER}"
             echo "version=${VER}"
