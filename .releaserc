@@ -8,25 +8,15 @@
       "@semantic-release/release-notes-generator",
       { "preset": "conventionalcommits" }
     ],
-    "@semantic-release/git",
-    "@semantic-release/github"
-  ],
-  "verifyRelease": [
     [
       "@semantic-release/exec",
-      { "cmd": "echo ${nextRelease.version} > VERSION" }
-    ]
-  ],
-  "prepare": [
-    [
-      "@semantic-release/git",
-      {
-        "assets": [
-          "package.json",
-          "package-lock.json"
-        ]
+      { 
+        "prepareCmd": "npm version ${nextRelease.version} --no-git-tag-version",
+        "verifyReleaseCmd": "echo ${nextRelease.version} > VERSION" 
       }
-    ]
+    ],
+    "@semantic-release/git",
+    "@semantic-release/github"
   ],
   "branches":[
     {
