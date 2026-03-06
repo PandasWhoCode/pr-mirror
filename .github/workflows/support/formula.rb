@@ -1,4 +1,4 @@
-class PrMirror < Formula
+class Prmirror < Formula
   desc "A CLI Tool to mirror an existing pull request from a public GitHub repository"
   homepage "https://github.com/PandasWhoCode/pr-mirror"
   url "SUB_URL"
