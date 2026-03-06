@@ -280,6 +280,7 @@ jobs:
     name: Publish Release packages
     runs-on: ubuntu-latest
     needs:
+      - prepare-release
       - get-package-info
       - create-github-release
     if: ${{ needs.create-github-release.outputs.need-publish == 'true' || inputs.dry-run-enabled == true }}
@@ -330,3 +331,36 @@ jobs:
             fi
             npm publish ${TARBALL} ${FLAGS}
           echo "::endgroup::"
+
+      - name: Checkout Homebrew Tools Repository
+        if: ${{ inputs.dry-run-enabled != true }}
+        uses: actions/checkout@v4.3.0
+        with:
+          repository: pandaswhocode/homebrew-tools
+          token: ${{ secrets.HOMEBREW_PAT_TAP }}
+          path: homebrew-tools
+
+      - name: Publish Brew Formula
+        run: |
+          if [[ "${{ inputs.dry-run-enabled }}" == "true" ]]; then
+            echo "Dry-run enabled - skipping brew formula publish"
+          else
+            echo "Publishing brew formula..."
+            cp .github/workflows/support/formula.rb homebrew-tools/Formula/prmirror.rb
+            SUB_URL="https://registry.npmjs.org/@pandaswhocode/pr-mirror/-/pr-mirror-${{ needs.prepare-release.outputs.version }}.tgz"
+            SHA256=$(curl -sL "${SUB_URL}" | sha256sum | awk '{print $1}')
+            sed -i "s|SUB_URL|${SUB_URL}|g" homebrew-tools/Formula/prmirror.rb
+            sed -i "s/SUB_SHA256/${SHA256}/g" homebrew-tools/Formula/prmirror.rb
+          fi
+
+      - name: Push Homebrew formula update
+        if: ${{ inputs.dry-run-enabled != true }}
+        env:
+          TAG: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          cd homebrew-tools
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/prmirror.rb
+          git commit -m "chore(release): update prmirror formula for ${TAG} [skip ci]"
+          git push origin HEAD:main
