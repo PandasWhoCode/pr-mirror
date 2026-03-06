@@ -36,6 +36,15 @@ prmirror -c
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap pandaswhocode/tools
+brew install prmirror
+```
+
+### npm
+
 ```bash
 npm install -g @pandaswhocode/pr-mirror
 ```
