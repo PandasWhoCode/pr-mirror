@@ -31,7 +31,7 @@ jobs:
       need-release: ${{ steps.set-outputs.outputs.need-release }}
     steps:
       - name: Prepare Release
-        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        uses: pandaswhocode/initialize-github-job@a57cd6d8d768b2f3c95334bdd4fa8c21609fc651 # 1.0.5
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
@@ -122,7 +122,7 @@ jobs:
       package-name: ${{ steps.set-package-name.outputs.package-name }}
     steps:
       - name: Prepare Job
-        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        uses: pandaswhocode/initialize-github-job@a57cd6d8d768b2f3c95334bdd4fa8c21609fc651 # 1.0.5
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
@@ -155,7 +155,7 @@ jobs:
       need-publish: ${{ steps.verify-package.outputs.need-publish }}
     steps:
       - name: Prepare Job
-        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        uses: pandaswhocode/initialize-github-job@a57cd6d8d768b2f3c95334bdd4fa8c21609fc651 # 1.0.5
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
@@ -181,7 +181,7 @@ jobs:
 
       - name: Import GPG key
         id: gpg_key
-        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6.3.0
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         with:
           gpg_private_key: ${{ secrets.GPG_KEY_CONTENTS }}
           passphrase: ${{ secrets.GPG_KEY_PASSPHRASE }}
@@ -200,7 +200,7 @@ jobs:
 
       - name: Upload Logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           path: /home/runner/.npm/_logs
 
@@ -270,7 +270,7 @@ jobs:
 
       - name: Upload Package
         if: ${{ steps.verify-package.outputs.need-publish == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: npm-package
           path: output
@@ -286,7 +286,7 @@ jobs:
     if: ${{ needs.create-github-release.outputs.need-publish == 'true' || inputs.dry-run-enabled == true }}
     steps:
       - name: Prepare Job
-        uses: pandaswhocode/initialize-github-job@ffb7446339e8e6007b942312ac95457d1a20b6cf # 1.0.4
+        uses: pandaswhocode/initialize-github-job@a57cd6d8d768b2f3c95334bdd4fa8c21609fc651 # 1.0.5
         with:
           checkout: 'true'
           checkout-ref: '${{ github.ref }}'
@@ -300,7 +300,7 @@ jobs:
 
       - name: Download NPM Package Artifact
         if: ${{ inputs.dry-run-enabled != true }}
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: npm-package
           path: output
