@@ -34,7 +34,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^18.0.9"
   },
   "devDependencies": {
     "@semantic-release/commit-analyzer": "^13.0.1",
